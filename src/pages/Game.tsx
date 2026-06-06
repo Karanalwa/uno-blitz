@@ -39,8 +39,8 @@ function MiniFan({ count }: { count: number }) {
   return (
     <div className="flex justify-center" style={{ height: 26 }}>
       {Array.from({ length: n }).map((_, i) => (
-        <div key={i} className="w-4 h-6 rounded-[3px] -ml-2 first:ml-0 border border-white/20"
-          style={{ background: "linear-gradient(160deg,#d01e1e,#8a1010)", transform: `rotate(${(i - (n - 1) / 2) * 6}deg)`, boxShadow: "0 1px 2px rgba(0,0,0,0.4)" }} />
+        <div key={i} className="w-4 h-6 rounded-[3px] -ml-2 first:ml-0"
+          style={{ background: "linear-gradient(160deg,#1a1a2e,#0f0f1a)", border: "1px solid rgba(245,166,35,0.3)", transform: `rotate(${(i - (n - 1) / 2) * 6}deg)`, boxShadow: "0 1px 2px rgba(0,0,0,0.4)" }} />
       ))}
     </div>
   );
@@ -49,10 +49,10 @@ function MiniFan({ count }: { count: number }) {
 // Styled red UNO card back
 function CardBack({ className = "" }: { className?: string }) {
   return (
-    <div className={`uno-shell ${className}`}>
-      <div className="uno-inner suit-red flex items-center justify-center">
-        <div className="uno-oval" style={{ width: "118%", height: "62%" }} />
-        <span className="uno-glyph glyph-red text-[0.7em] -rotate-[18deg] relative z-10" style={{ letterSpacing: 0 }}>UNO</span>
+    <div className={`rounded-xl relative overflow-hidden ${className}`} style={{ background: "linear-gradient(135deg,#1a1a2e,#0f0f1a)", border: "2px solid rgba(245,166,35,0.3)", boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
+      <div className="absolute inset-2 rounded-lg" style={{ border: "2px solid rgba(245,166,35,0.5)" }} />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="font-display font-black -rotate-[15deg]" style={{ color: "rgba(245,166,35,0.65)" }}>UNO</span>
       </div>
     </div>
   );
