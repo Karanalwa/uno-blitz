@@ -119,10 +119,18 @@ const baseState = {
   gameState: null as any,
 };
 
+// Backend WebSocket endpoint. In local dev connect to the same host; in
+// production connect to the Railway backend (the Vercel frontend has no /ws).
+const WS_BACKEND_URL = "wss://uno-blitz-production.up.railway.app";
+
 function getWsUrl(): string {
-  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
   const host = window.location.host;
-  return `${protocol}//${host}/ws`;
+  const isLocal = host.includes("localhost") || host.includes("127.0.0.1");
+  if (isLocal) {
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    return `${protocol}//${host}/ws`;
+  }
+  return `${WS_BACKEND_URL}/ws`;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
