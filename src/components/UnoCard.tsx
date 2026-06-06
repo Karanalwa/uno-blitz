@@ -12,9 +12,9 @@ interface UnoCardProps {
 }
 
 const sizeMap = {
-  sm: { w: "w-16", h: "h-24", glyph: "text-xl", corner: "text-[11px]", disc: "text-lg" },
-  md: { w: "w-20", h: "h-28", glyph: "text-2xl", corner: "text-sm", disc: "text-xl" },
-  lg: { w: "w-28", h: "h-40", glyph: "text-4xl", corner: "text-lg", disc: "text-3xl" },
+  sm: { w: "w-16", h: "h-24", corner: "text-[11px]", disc: "text-2xl" },
+  md: { w: "w-20", h: "h-28", corner: "text-sm", disc: "text-3xl" },
+  lg: { w: "w-28", h: "h-40", corner: "text-lg", disc: "text-5xl" },
 };
 
 function centerGlyph(card: Card): string {
@@ -67,24 +67,22 @@ export function UnoCard({ card, size = "md", playable = false, faceDown = false,
       onClick={onClick}
     >
       <div className={`uno-inner suit-${suit}`}>
-        {/* wild 4-quadrant tint */}
-        {isWild && (
-          <div className="absolute inset-1 rounded-lg overflow-hidden opacity-40 z-0">
-            <div className="absolute top-0 left-0 w-1/2 h-1/2 bg-suit-red" />
-            <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-suit-yellow" />
-            <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-suit-blue" />
-            <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-suit-green" />
-          </div>
-        )}
+        {/* white corner index (always white for readability) */}
+        <span className={`uno-corner ${s.corner} absolute top-1 left-1.5`}>{corner}</span>
+        <span className={`uno-corner ${s.corner} absolute bottom-1 right-1.5 rotate-180`}>{corner}</span>
 
-        {/* corners */}
-        <span className={`uno-corner glyph-${suit} ${s.corner} absolute top-1 left-1.5`}>{corner}</span>
-        <span className={`uno-corner glyph-${suit} ${s.corner} absolute bottom-1 right-1.5 rotate-180`}>{corner}</span>
-
-        {/* center disc + glyph */}
-        <div className="uno-oval" style={isWild ? { background: "linear-gradient(135deg,#e74c3c,#f1c40f,#3498db)" } : undefined} />
+        {/* diagonal oval + big numeral */}
+        <div
+          className="uno-oval"
+          style={isWild ? { background: "conic-gradient(#e74c3c 0deg 90deg,#f1c40f 90deg 180deg,#2ecc71 180deg 270deg,#3498db 270deg 360deg)" } : undefined}
+        />
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`uno-glyph glyph-${suit} ${s.disc}`}>{center}</span>
+          <span
+            className={`uno-glyph ${s.disc} ${isWild ? "text-white" : `glyph-${suit}`}`}
+            style={isWild ? { textShadow: "0 2px 4px rgba(0,0,0,0.65)" } : undefined}
+          >
+            {center}
+          </span>
         </div>
       </div>
     </motion.div>

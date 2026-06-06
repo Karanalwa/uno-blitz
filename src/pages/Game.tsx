@@ -248,12 +248,12 @@ export default function Game() {
           <span className="count-badge text-[10px]">{store.myHand.length}</span>
         </div>
         <div className="flex justify-center overflow-x-auto pb-1" style={{ minHeight: "108px" }}>
-          <div className="flex items-end" style={{ paddingLeft: `${Math.min(store.myHand.length * 10, 70)}px` }}>
+          <div className="flex items-end" style={{ paddingLeft: `${Math.min(store.myHand.length * 7, 52)}px` }}>
             {store.myHand.map((card, index) => {
               const playable = isCardPlayable(card, store.topCard, store.activeColor, store.isMyTurn);
               return (
-                <motion.div key={card.id} initial={{ y: 90, x: -140, opacity: 0, rotate: -14, scale: 0.8 }} animate={{ y: playable ? -6 : 0, x: 0, opacity: 1, rotate: 0, scale: 1 }} transition={{ delay: index * 0.045, type: "spring", stiffness: 240, damping: 20 }}
-                  className="flex-shrink-0 relative z-0 hover:z-10" style={{ marginLeft: `-${Math.min(store.myHand.length * 5, 38)}px` }}>
+                <motion.div key={card.id} initial={{ y: 90, x: -140, opacity: 0, rotate: -14, scale: 0.8 }} animate={{ y: playable ? -8 : 0, x: 0, opacity: 1, rotate: 0, scale: 1 }} transition={{ delay: index * 0.045, type: "spring", stiffness: 240, damping: 20 }}
+                  className="flex-shrink-0 relative z-0 hover:z-10" style={{ marginLeft: `-${Math.min(store.myHand.length * 3.5, 26)}px` }}>
                   <UnoCard card={card} size="sm" playable={playable} onClick={playable ? () => handlePlayCard(index) : undefined} className={playable ? "" : "opacity-75 saturate-[0.85]"} />
                 </motion.div>
               );
