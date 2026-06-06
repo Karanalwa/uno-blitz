@@ -12,7 +12,7 @@ const app = new Hono<{ Bindings: HttpBindings }>();
 
 app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 
-// Health check for Railway - MUST be first
+// Health check for Railway - MUST be before other routes
 app.get("/", (c) => c.json({ status: "ok", service: "uno-blitz", timestamp: Date.now() }));
 app.get("/health", (c) => c.json({ status: "ok" }));
 
@@ -27,7 +27,7 @@ app.use("/api/trpc/*", async (c) => {
 });
 app.all("/api/*", (c) => c.json({ error: "Not Found" }, 404));
 
-// Serve static files (frontend)
+// Serve static files (frontend) - always in production
 app.use("/*", async (c, next) => {
   try {
     const fs = await import("fs");
@@ -55,16 +55,33 @@ export default app;
 // Start server with Railway-compatible settings
 async function startServer() {
   const { serve } = await import("@hono/node-server");
-  const port = parseInt(process.env.PORT || "3000");
+  // Railway sets PORT env var dynamically
+  const portEnv = process.env.PORT;
+  const port = portEnv ? parseInt(portEnv) : 3000;
   const hostname = "0.0.0.0";
 
   const server = serve({ fetch: app.fetch, port, hostname }, () => {
     console.log(`Server running on http://${hostname}:${port}/`);
     console.log(`WebSocket available on ws://${hostname}:${port}/ws`);
+    console.log(`PORT env: ${portEnv || "not set, using 3000"}`);
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  initWebSocketServer(server as any);
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    initWebSocketServer(server as any);
+    console.log("[WS] WebSocket server attached to HTTP server");
+  } catch (err) {
+    console.error("[WS] Failed to attach WebSocket:", err);
+  }
+
+  // Handle Railway shutdown signals
+  process.on("SIGTERM", () => {
+    console.log("[Server] SIGTERM received, shutting down gracefully");
+    server.close(() => process.exit(0));
+  });
 }
 
-startServer().catch(console.error);
+startServer().catch((err) => {
+  console.error("[Server] Fatal error:", err);
+  process.exit(1);
+});
