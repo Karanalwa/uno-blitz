@@ -1,11 +1,10 @@
-import { useEffect, useState, useCallback, type ReactNode } from "react";
+import { useEffect, useState, useCallback, useMemo, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeftRight, LogOut, MessageSquare, RotateCcw, Volume2, VolumeX, X, Coins } from "lucide-react";
 import { useGameStore } from "@/store/gameStore";
 import { useSound } from "@/hooks/useSound";
 import { UnoCard, ColorPicker } from "@/components/UnoCard";
-import { Confetti } from "@/components/Confetti";
 import type { CardColor } from "../../api/game/types";
 
 const SUIT_HEX: Record<string, string> = { red: "#e4322b", yellow: "#f6b500", green: "#18a558", blue: "#1e7fd6" };
@@ -353,5 +352,49 @@ function Overlay({ children, gold }: { children: ReactNode; gold?: boolean }) {
         {children}
       </motion.div>
     </motion.div>
+  );
+}
+
+const CONFETTI_COLORS = ["#e4322b", "#f6b500", "#18a558", "#1e7fd6", "#ffd15c", "#27d9f8", "#ffffff"];
+
+// Lightweight viewport confetti — pure Framer Motion, inlined to avoid extra files.
+function Confetti({ count = 90, loop = false }: { count?: number; loop?: boolean }) {
+  const pieces = useMemo(
+    () =>
+      Array.from({ length: count }).map((_, i) => ({
+        id: i,
+        left: 50 + (Math.random() - 0.5) * 90,
+        color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+        size: 6 + Math.random() * 8,
+        delay: Math.random() * (loop ? 2.2 : 0.5),
+        duration: 2.2 + Math.random() * 1.8,
+        drift: (Math.random() - 0.5) * 220,
+        rotate: (Math.random() - 0.5) * 720,
+        rounded: Math.random() > 0.5,
+      })),
+    [count, loop],
+  );
+
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-[60]">
+      {pieces.map((p) => (
+        <motion.span
+          key={p.id}
+          initial={{ y: "-10vh", x: 0, opacity: 1, rotate: 0 }}
+          animate={{ y: "110vh", x: p.drift, opacity: [1, 1, 0.9, 0], rotate: p.rotate }}
+          transition={{ duration: p.duration, delay: p.delay, ease: "easeIn", repeat: loop ? Infinity : 0, repeatDelay: loop ? Math.random() * 1.5 : 0 }}
+          style={{
+            position: "absolute",
+            left: `${p.left}%`,
+            top: 0,
+            width: p.size,
+            height: p.size * (p.rounded ? 1 : 1.6),
+            backgroundColor: p.color,
+            borderRadius: p.rounded ? "9999px" : "2px",
+            boxShadow: `0 0 6px ${p.color}88`,
+          }}
+        />
+      ))}
+    </div>
   );
 }
