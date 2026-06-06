@@ -67,8 +67,10 @@ export function UnoCard({
 
   return (
     <motion.div
-      whileHover={onClick ? { y: -16, scale: 1.08 } : {}}
-      whileTap={onClick ? { scale: 0.95 } : {}}
+      whileHover={onClick ? { y: -20, scale: 1.12, rotateX: -10 } : {}}
+      whileTap={onClick ? { scale: 0.95, rotateX: 0 } : {}}
+      transition={{ type: "spring", stiffness: 320, damping: 20 }}
+      style={{ transformPerspective: 700 }}
       className={`uno-shell ${s.w} ${s.h} ${onClick ? "cursor-pointer" : ""} ${
         active ? "card-active-glow" : playable ? "card-playable-glow" : ""
       } ${className}`}

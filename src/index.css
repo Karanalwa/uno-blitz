@@ -36,34 +36,65 @@
    Digital Casino Blitz — design-system utilities
    ============================================================ */
 
-/* Spotlight casino-felt background */
+/* Premium dark app background (menus/lobby) with a faint red glow */
 .casino-bg {
-  background: radial-gradient(ellipse 90% 70% at 50% 30%, #20222e 0%, #15171f 45%, #0c0e15 100%);
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(180, 24, 31, 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 90% 90% at 50% 50%, #16131a 0%, #0c0a0e 55%, #060507 100%);
   position: relative;
 }
 .casino-bg::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 22px 22px;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
-/* Frosted-midnight glass panel */
+/* Red casino felt table (in-game) */
+.felt-table {
+  background:
+    radial-gradient(ellipse 75% 70% at 50% 45%, #9a161c 0%, #7a1216 38%, #4f0b0e 72%, #2a0608 100%);
+  position: relative;
+}
+.felt-table::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.18) 1px, transparent 1px);
+  background-size: 7px 7px;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+}
+/* soft gold rail glow around the table */
+.felt-rail {
+  box-shadow:
+    inset 0 0 120px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 2px rgba(245, 178, 26, 0.15);
+}
+
+/* Premium dark panel */
 .glass {
-  background: rgba(27, 30, 43, 0.78);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 20px 40px -12px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(180deg, rgba(28, 24, 30, 0.92), rgba(16, 14, 18, 0.94));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(245, 178, 26, 0.14);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+    0 18px 40px -14px rgba(0, 0, 0, 0.7);
 }
 .glass-bright {
-  background: rgba(40, 42, 49, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(40, 36, 44, 0.9), rgba(26, 22, 28, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+}
+.panel-inset {
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 /* 3D "press" button — thick bottom edge, depresses on active */
@@ -81,10 +112,70 @@
   box-shadow: 0 1px 0 0 var(--btn-edge, rgba(0, 0, 0, 0.4)), 0 3px 8px -4px rgba(0, 0, 0, 0.5);
 }
 .btn-3d:disabled { opacity: 0.45; cursor: not-allowed; }
-.btn-gold { --btn-edge: #b88a16; background: linear-gradient(180deg, #ffd96f, #f0b431); color: #3e2e00; }
-.btn-cyan { --btn-edge: #0a8aa3; background: linear-gradient(180deg, #3fe2ff, #16b8d8); color: #00232b; }
-.btn-red  { --btn-edge: #9c1d18; background: linear-gradient(180deg, #f0463d, #c5271f); color: #fff; }
-.btn-ghost { --btn-edge: rgba(0, 0, 0, 0.45); background: rgba(255, 255, 255, 0.07); color: #e2e2ec; border: 1px solid rgba(255, 255, 255, 0.1); }
+.btn-gold { --btn-edge: #a9730a; background: linear-gradient(180deg, #ffd255, #f0a818); color: #3e2600; text-shadow: 0 1px 0 rgba(255,255,255,0.3); }
+.btn-cyan { --btn-edge: #0a6aa3; background: linear-gradient(180deg, #36a9f0, #1e7fd6); color: #fff; }
+.btn-blue { --btn-edge: #0a4fa3; background: linear-gradient(180deg, #3b86f0, #1f5fd6); color: #fff; }
+.btn-purple { --btn-edge: #5a1f9c; background: linear-gradient(180deg, #a356f0, #7a2fd6); color: #fff; }
+.btn-green { --btn-edge: #1a7a32; background: linear-gradient(180deg, #43d166, #1ea84a); color: #fff; }
+.btn-red  { --btn-edge: #9c1212; background: linear-gradient(180deg, #f04444, #d01e1e); color: #fff; }
+.btn-ghost { --btn-edge: rgba(0, 0, 0, 0.5); background: rgba(255, 255, 255, 0.06); color: #ece6da; border: 1px solid rgba(255, 255, 255, 0.1); }
+
+/* Gold pill / currency / badges */
+.currency-pill {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(245, 178, 26, 0.25);
+  border-radius: 9999px;
+  padding: 0.2rem 0.55rem;
+  font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.level-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 1.15rem; height: 1.15rem; padding: 0 0.2rem;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #ffd255, #e09b12);
+  color: #3e2600; font-weight: 800; font-size: 0.62rem;
+  border: 1.5px solid #11131a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+.count-badge {
+  display: inline-flex; align-items: center; justify-content: center; gap: 2px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.4rem;
+  padding: 0.05rem 0.3rem;
+  font-weight: 800; font-size: 0.7rem; color: #fff;
+}
+
+/* Toggle switch (match-settings) */
+.toggle-pill { width: 2.4rem; height: 1.3rem; border-radius: 9999px; padding: 2px; transition: background 0.2s ease; }
+.toggle-on { background: linear-gradient(180deg, #43d166, #1ea84a); }
+.toggle-off { background: rgba(255, 255, 255, 0.12); }
+.toggle-knob { width: 1.05rem; height: 1.05rem; border-radius: 9999px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.4); transition: transform 0.2s ease; }
+
+/* Wild color wheel */
+.wild-wheel {
+  border-radius: 9999px;
+  background: conic-gradient(#e4322b 0deg 90deg, #1e7fd6 90deg 180deg, #18a558 180deg 270deg, #f6b500 270deg 360deg);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.85), 0 4px 12px rgba(0,0,0,0.5), inset 0 2px 6px rgba(255,255,255,0.3);
+}
+
+/* UNO call button (big red) */
+.uno-btn {
+  background: radial-gradient(circle at 50% 35%, #ff5a5a, #e01e1e 55%, #a81212 100%);
+  border: 3px solid #fff;
+  box-shadow: 0 6px 0 #7c0d0d, 0 10px 22px rgba(0,0,0,0.55), inset 0 2px 8px rgba(255,255,255,0.35);
+  color: #fff;
+  text-shadow: 0 2px 2px rgba(0,0,0,0.4);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.uno-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 #7c0d0d, 0 5px 12px rgba(0,0,0,0.5), inset 0 2px 8px rgba(255,255,255,0.35); }
+.uno-btn:disabled { filter: grayscale(0.7) brightness(0.6); box-shadow: 0 4px 0 #3a3a3a; cursor: not-allowed; }
+
+/* avatar frame ring (gold/colored) */
+.frame-ring { padding: 2px; border-radius: 0.8rem; background: linear-gradient(160deg, #ffd255, #b97e12); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+.frame-ring-turn { background: linear-gradient(160deg, #7af0a0, #1ea84a); box-shadow: 0 0 18px rgba(46,200,90,0.55); }
 
 /* Casino-chip avatar frame */
 .chip-frame { position: relative; border-radius: 9999px; padding: 3px; background: conic-gradient(from 0deg, #3a3d49, #5a5d6b, #3a3d49, #5a5d6b, #3a3d49); }
@@ -183,15 +274,21 @@
 
 /* glowing "active card in play" ring */
 .card-active-glow {
-  box-shadow: 0 0 0 3px rgba(39, 217, 248, 0.6), 0 0 32px rgba(39, 217, 248, 0.45);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.85), 0 0 34px rgba(245, 178, 26, 0.55);
 }
 .card-playable-glow {
-  box-shadow: 0 0 0 2px rgba(255, 209, 92, 0.8), 0 0 22px rgba(255, 209, 92, 0.5);
+  box-shadow: 0 0 0 2px rgba(245, 178, 26, 0.9), 0 0 22px rgba(245, 178, 26, 0.6);
 }
 
-/* bottom nav item */
-.nav-item { color: #8b8f9c; transition: color 0.15s ease; }
-.nav-item-active { color: #ffd15c; }
+/* nav item */
+.nav-item { color: #8b8694; transition: color 0.15s ease, background 0.15s ease; }
+.nav-item-active { color: #ffd255; }
+
+/* keyframes for table effects */
+@keyframes wheel-spin { to { transform: rotate(360deg); } }
+@keyframes dir-flow { 0% { opacity: 0.25; } 50% { opacity: 0.7; } 100% { opacity: 0.25; } }
+.animate-wheel-spin { animation: wheel-spin 9s linear infinite; }
+.animate-dir-flow { animation: dir-flow 2.4s ease-in-out infinite; }
 
 /* UNO Card Colors */
 .uno-card-red { background: linear-gradient(135deg, #E84855, #c73a47); }

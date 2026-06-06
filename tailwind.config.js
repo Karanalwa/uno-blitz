@@ -32,6 +32,21 @@ module.exports = {
           green: "#18a558",
           blue: "#1e7fd6",
         },
+        felt: {
+          DEFAULT: "#7a1216",
+          glow: "#b5181f",
+          deep: "#43090c",
+        },
+        ink: {
+          DEFAULT: "#0b0b0f",
+          800: "#141419",
+          700: "#1c1c24",
+          600: "#262630",
+        },
+        unored: {
+          DEFAULT: "#e01e1e",
+          deep: "#a81212",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

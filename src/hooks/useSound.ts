@@ -142,6 +142,18 @@ export function useSound() {
     playTone(ctx, 900, 0.05, "sine", 0.1);
   }, [getCtx]);
 
+  const playShuffle = useCallback(() => {
+    const ctx = getCtx();
+    if (!ctx) return;
+    // Rapid riffle of paper ticks
+    for (let i = 0; i < 8; i++) {
+      setTimeout(() => playNoise(ctx, 0.04, 0.06), i * 45);
+    }
+  }, [getCtx]);
+
+  // Alias so callers can use a clear "victory" name (maps to the win fanfare).
+  const playVictory = playWin;
+
   return {
     playCard,
     playDraw,
@@ -152,6 +164,8 @@ export function useSound() {
     playDraw2,
     playError,
     playWin,
+    playVictory,
+    playShuffle,
     playButton,
   };
 }
