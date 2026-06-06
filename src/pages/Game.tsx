@@ -67,6 +67,7 @@ export default function Game() {
   const [showChat, setShowChat] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [lastAction, setLastAction] = useState("");
+  const [unoCall, setUnoCall] = useState(false);
 
   useEffect(() => {
     if (!store.lastAction || !soundEnabled) return;
@@ -84,7 +85,7 @@ export default function Game() {
 
   useEffect(() => {
     if (store.phase === "menu" || (store.gameMode !== "solo" && !store.roomCode && store.phase !== "match_end")) {
-      navigate("/");
+      navigate("/home");
     }
   }, [store.phase, store.roomCode, store.gameMode, navigate]);
 
@@ -104,9 +105,15 @@ export default function Game() {
   }, [store, sound]);
 
   const handleDraw = useCallback(() => { if (!store.isMyTurn) return; sound.playDraw(); store.drawCard(); }, [store, sound]);
-  const handleUno = useCallback(() => { if (store.myHand.length !== 1) return; sound.playUno(); store.declareUno(); }, [store, sound]);
+  const handleUno = useCallback(() => {
+    if (store.myHand.length !== 1) return;
+    sound.playUno();
+    store.declareUno();
+    setUnoCall(true);
+    setTimeout(() => setUnoCall(false), 1700);
+  }, [store, sound]);
   const handlePass = useCallback(() => { if (!store.isMyTurn) return; store.passTurn(); }, [store]);
-  const handleLeave = useCallback(() => { store.leaveRoom(); navigate("/"); }, [store, navigate]);
+  const handleLeave = useCallback(() => { store.leaveRoom(); navigate("/home"); }, [store, navigate]);
   const handleChat = useCallback(() => { if (!chatInput.trim()) return; store.sendChat(chatInput.trim()); setChatInput(""); }, [chatInput, store]);
 
   const otherPlayers = store.players.filter((p) => p.id !== store.playerId);
@@ -274,6 +281,25 @@ export default function Game() {
         )}
       </AnimatePresence>
 
+      {/* ===== UNO call burst ===== */}
+      <AnimatePresence>
+        {unoCall && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[55] flex items-center justify-center pointer-events-none">
+            <div className="absolute w-[80vmin] h-[80vmin] rounded-full" style={{ background: "radial-gradient(circle, rgba(224,30,30,0.55) 0%, transparent 60%)" }} />
+            {/* burst rays */}
+            {Array.from({ length: 12 }).map((_, i) => (
+              <motion.span key={i} className="absolute origin-bottom" style={{ width: 4, height: "30vmin", background: "linear-gradient(to top, transparent, rgba(255,209,92,0.7))", rotate: `${i * 30}deg` }}
+                initial={{ scaleY: 0, opacity: 0 }} animate={{ scaleY: [0, 1, 0.8], opacity: [0, 1, 0] }} transition={{ duration: 1.2, delay: 0.05 }} />
+            ))}
+            <motion.div initial={{ scale: 0, rotate: -18 }} animate={{ scale: [0, 1.25, 1], rotate: [-18, 6, 0] }} transition={{ duration: 0.6, ease: "easeOut" }} className="relative text-center">
+              <h1 className="font-display font-extrabold text-8xl sm:text-9xl" style={{ color: "#ffce3a", textShadow: "0 0 40px rgba(224,30,30,0.9), 0 6px 0 #a81212, 0 10px 20px rgba(0,0,0,0.7)" }}>UNO<span className="text-unored">!</span></h1>
+              <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="font-display font-extrabold text-3xl text-emerald-400 mt-2" style={{ textShadow: "0 0 20px rgba(67,209,102,0.7)" }}>+100</motion.p>
+            </motion.div>
+            <Confetti count={50} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ===== Round End ===== */}
       <AnimatePresence>
         {store.phase === "round_end" && store.roundScores && (
@@ -300,21 +326,37 @@ export default function Game() {
       <AnimatePresence>
         {store.phase === "match_end" && store.finalScores && (
           <>
-          <Confetti loop count={120} />
+          <Confetti loop count={140} />
           <Overlay gold>
-            <motion.div className="text-6xl text-center mb-1" animate={{ rotate: [0, -8, 8, 0], y: [0, -6, 0] }} transition={{ duration: 2, repeat: Infinity }}>🏆</motion.div>
-            <h2 className="font-display text-2xl font-extrabold text-gold glow-gold-text text-center mb-3">{store.matchWinner} Wins!</h2>
-            <div className="space-y-1.5 mb-5">
+            <motion.div initial={{ scale: 0, rotate: -20 }} animate={{ scale: 1, rotate: 0, y: [0, -6, 0] }} transition={{ scale: { type: "spring", stiffness: 200 }, y: { duration: 2, repeat: Infinity } }} className="text-7xl text-center mb-1" style={{ filter: "drop-shadow(0 0 20px rgba(255,209,92,0.7))" }}>🏆</motion.div>
+            <motion.div initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.2 }}
+              className="mx-auto mb-4 px-5 py-1.5 rounded-xl text-center font-display font-extrabold text-2xl text-white w-fit"
+              style={{ background: "linear-gradient(180deg,#f04444,#c5271f)", boxShadow: "0 4px 0 #8a1010, 0 8px 18px rgba(0,0,0,0.5)" }}>
+              {store.matchWinner === me?.username ? "YOU WON!" : `${store.matchWinner} WINS!`}
+            </motion.div>
+
+            {/* rewards */}
+            <p className="text-[10px] font-bold tracking-[0.15em] text-[#caa15a] text-center mb-2">REWARDS</p>
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {[{ icon: "🪙", v: "+500", c: "#ffd255" }, { icon: "✦", v: "+250", c: "#a356f0" }, { icon: "🎁", v: "+1", c: "#f0a818" }].map((r, i) => (
+                <motion.div key={i} initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 + i * 0.1 }} className="panel-inset rounded-xl p-3 text-center">
+                  <div className="text-2xl mb-1" style={{ color: r.c }}>{r.icon}</div>
+                  <p className="font-bold text-sm" style={{ color: r.c }}>{r.v}</p>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="space-y-1 mb-4">
               {store.finalScores.map((score, i) => (
-                <div key={i} className={`flex items-center justify-between p-2 rounded-lg ${i === 0 ? "bg-gold/10 border border-gold/30" : "panel-inset"}`}>
-                  <span className="text-sm">#{score.rank} {score.username}</span>
-                  <span className="text-gold font-bold text-sm">{score.score} pts</span>
+                <div key={i} className={`flex items-center justify-between p-1.5 rounded-lg text-xs ${i === 0 ? "bg-gold/10 border border-gold/30" : "panel-inset"}`}>
+                  <span>#{score.rank} {score.username}</span>
+                  <span className="text-gold font-bold">{score.score} pts</span>
                 </div>
               ))}
             </div>
             <div className="flex gap-3">
-              <button onClick={handleLeave} className="btn-3d btn-gold flex-1 py-3 flex items-center justify-center gap-2 text-sm"><RotateCcw className="w-4 h-4" /> New Game</button>
-              <button onClick={handleLeave} className="btn-3d btn-ghost flex-1 py-3 text-sm">Menu</button>
+              <button onClick={handleLeave} className="btn-3d btn-gold flex-1 py-3 flex items-center justify-center gap-2 text-sm"><RotateCcw className="w-4 h-4" /> Play Again</button>
+              <button onClick={handleLeave} className="btn-3d btn-ghost flex-1 py-3 text-sm">Back to Home</button>
             </div>
           </Overlay>
           </>

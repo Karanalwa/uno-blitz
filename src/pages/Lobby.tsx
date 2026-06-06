@@ -22,7 +22,7 @@ export default function Lobby() {
   const [toggles, setToggles] = useState<Record<string, boolean>>(Object.fromEntries(SETTINGS_ROWS.map((r) => [r.key, r.on])));
 
   useEffect(() => {
-    if (store.phase !== "lobby" || !store.roomCode) navigate("/");
+    if (store.phase !== "lobby" || !store.roomCode) navigate("/home");
   }, [store.phase, store.roomCode, navigate]);
   useEffect(() => {
     if (store.gamePhase === "playing" && store.topCard) navigate("/game");
@@ -30,7 +30,7 @@ export default function Lobby() {
 
   const handleReady = () => { sound.playButton(); store.toggleReady(); };
   const handleStart = () => { sound.playShuffle(); store.startGame(); };
-  const handleLeave = () => { sound.playButton(); store.leaveRoom(); navigate("/"); };
+  const handleLeave = () => { sound.playButton(); store.leaveRoom(); navigate("/home"); };
   const copyCode = () => { if (store.roomCode) { navigator.clipboard.writeText(store.roomCode); setCopied(true); setTimeout(() => setCopied(false), 1500); } };
   const sendChat = () => { if (!chatInput.trim()) return; store.sendChat(chatInput.trim()); setChatInput(""); };
   const share = (where: string) => {
