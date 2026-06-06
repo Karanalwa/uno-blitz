@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { Card, CardColor } from "../../api/game/types";
 import type { GameSettings } from "@/engine/types";
 import { initGame, playCard, handleDraw, handlePass, handleDeclareUno, checkMatchEnd, startNewRound, getBotPlay } from "@/engine/uno-engine";
+import { getBackendWsUrl } from "@/config";
 
 interface PlayerInfo {
   id: string;
@@ -119,20 +120,6 @@ const baseState = {
   gameState: null as any,
 };
 
-// Backend WebSocket endpoint. In local dev connect to the same host; in
-// production connect to the Railway backend (the Vercel frontend has no /ws).
-const WS_BACKEND_URL = "wss://uno-blitz-production.up.railway.app";
-
-function getWsUrl(): string {
-  const host = window.location.host;
-  const isLocal = host.includes("localhost") || host.includes("127.0.0.1");
-  if (isLocal) {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    return `${protocol}//${host}/ws`;
-  }
-  return `${WS_BACKEND_URL}/ws`;
-}
-
 export const useGameStore = create<GameStore>((set, get) => ({
   ...baseState,
 
@@ -142,7 +129,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const state = get();
     if (state.ws?.readyState === WebSocket.OPEN) return;
     try {
-      const wsUrl = getWsUrl();
+      const wsUrl = getBackendWsUrl();
       const ws = new WebSocket(wsUrl);
       ws.onopen = () => { set({ connected: true, connectError: null }); };
       ws.onmessage = (event) => {
