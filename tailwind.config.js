@@ -4,7 +4,34 @@ module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        display: ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],
+        body: ['"Nunito Sans"', "system-ui", "sans-serif"],
+      },
       colors: {
+        casino: {
+          bg: "#11131a",
+          surface: "#1b1e2b",
+          "surface-2": "#1d1f27",
+          "surface-3": "#282a31",
+          lowest: "#0c0e15",
+        },
+        gold: {
+          DEFAULT: "#ffd15c",
+          dim: "#edc14e",
+          deep: "#755900",
+        },
+        electric: {
+          DEFAULT: "#27d9f8",
+          bright: "#00cdec",
+          deep: "#005360",
+        },
+        suit: {
+          red: "#e4322b",
+          yellow: "#f6b500",
+          green: "#18a558",
+          blue: "#1e7fd6",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -58,8 +85,24 @@ module.exports = {
       },
       boxShadow: {
         xs: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        "glow-cyan": "0 0 24px rgba(39,217,248,0.45)",
+        "glow-cyan-lg": "0 0 40px rgba(39,217,248,0.55)",
+        "glow-gold": "0 0 24px rgba(255,209,92,0.45)",
+        "glow-red": "0 0 28px rgba(228,50,43,0.6)",
+        glass: "inset 0 1px 0 0 rgba(255,255,255,0.08), 0 20px 40px -12px rgba(0,0,0,0.6)",
       },
       keyframes: {
+        "glow-pulse": {
+          "0%,100%": { opacity: "0.55", transform: "scale(1)" },
+          "50%": { opacity: "1", transform: "scale(1.04)" },
+        },
+        float: {
+          "0%,100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        "spin-slow": {
+          to: { transform: "rotate(360deg)" },
+        },
         "accordion-down": {
           from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
@@ -77,6 +120,9 @@ module.exports = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "caret-blink": "caret-blink 1.25s ease-out infinite",
+        "glow-pulse": "glow-pulse 2s ease-in-out infinite",
+        float: "float 3s ease-in-out infinite",
+        "spin-slow": "spin-slow 8s linear infinite",
       },
     },
   },

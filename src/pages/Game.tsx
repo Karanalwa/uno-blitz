@@ -1,11 +1,13 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeftRight, Clock, Home, LogOut, MessageSquare, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeftRight, LogOut, MessageSquare, RotateCcw, Volume2, VolumeX, X, Coins } from "lucide-react";
 import { useGameStore } from "@/store/gameStore";
 import { useSound } from "@/hooks/useSound";
 import { UnoCard, ColorPicker } from "@/components/UnoCard";
 import type { CardColor } from "../../api/game/types";
+
+const SUIT_HEX: Record<string, string> = { red: "#e4322b", yellow: "#f6b500", green: "#18a558", blue: "#1e7fd6" };
 
 function isCardPlayable(card: any, topCard: any, activeColor: any, isMyTurn: boolean): boolean {
   if (!isMyTurn || !topCard) return false;
@@ -14,6 +16,23 @@ function isCardPlayable(card: any, topCard: any, activeColor: any, isMyTurn: boo
   if (card.type === "number" && topCard.type === "number" && card.value === topCard.value) return true;
   if (card.type !== "number" && card.type === topCard.type) return true;
   return false;
+}
+
+// Circular turn-timer ring drawn around an avatar
+function TimerRing({ pct, size = 60, active }: { pct: number; size?: number; active: boolean }) {
+  const r = size / 2 - 3;
+  const c = 2 * Math.PI * r;
+  const color = !active ? "rgba(255,255,255,0.12)" : pct < 30 ? "#e4322b" : pct < 60 ? "#f6b500" : "#27d9f8";
+  return (
+    <svg width={size} height={size} className="absolute -inset-0 -rotate-90" style={{ left: -3, top: -3 }}>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={3} />
+      <circle
+        cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={3} strokeLinecap="round"
+        strokeDasharray={c} strokeDashoffset={c - (c * (active ? pct : 100)) / 100}
+        style={{ transition: "stroke-dashoffset 0.5s linear" }}
+      />
+    </svg>
+  );
 }
 
 export default function Game() {
@@ -25,7 +44,6 @@ export default function Game() {
   const [chatInput, setChatInput] = useState("");
   const [lastAction, setLastAction] = useState("");
 
-  // Sound effects on action changes
   useEffect(() => {
     if (!store.lastAction || !soundEnabled) return;
     const a = store.lastAction;
@@ -40,319 +58,284 @@ export default function Game() {
     else if (a.includes("draw")) sound.playDraw();
   }, [store.lastAction, soundEnabled, sound]);
 
-  // Redirect if not in game
   useEffect(() => {
-    if (store.phase === "menu" || (!store.roomCode && store.phase !== "match_end")) {
-      navigate("/");
-    }
+    if (store.phase === "menu" || (!store.roomCode && store.phase !== "match_end")) navigate("/");
   }, [store.phase, store.roomCode, navigate]);
-
-  // Auto-advance round end
-  useEffect(() => {
-    if (store.phase === "round_end") {
-      const timer = setTimeout(() => {
-        // Server auto-starts next round, but we can also trigger
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [store.phase]);
 
   const handlePlayCard = useCallback((cardIndex: number) => {
     const card = store.myHand[cardIndex];
     if (!card || !store.isMyTurn || !store.topCard) return;
-    if (!isCardPlayable(card, store.topCard, store.activeColor, store.isMyTurn)) {
-      sound.playError();
-      return;
-    }
-    if (card.type === "wild" || card.type === "wild4") {
-      store._set({ showColorPicker: true, pendingCardIndex: cardIndex });
-      return;
-    }
+    if (!isCardPlayable(card, store.topCard, store.activeColor, store.isMyTurn)) { sound.playError(); return; }
+    if (card.type === "wild" || card.type === "wild4") { store._set({ showColorPicker: true, pendingCardIndex: cardIndex }); return; }
     sound.playCard();
     store.playCard(cardIndex);
   }, [store, sound]);
 
   const handleColorSelect = useCallback((color: CardColor) => {
-    const { pendingCardIndex } = store;
-    if (pendingCardIndex === null) return;
+    if (store.pendingCardIndex === null) return;
     sound.playWild();
     store.selectColor(color);
   }, [store, sound]);
 
-  const handleDraw = useCallback(() => {
-    if (!store.isMyTurn) return;
-    sound.playDraw();
-    store.drawCard();
-  }, [store, sound]);
-
-  const handleUno = useCallback(() => {
-    if (store.myHand.length !== 1) return;
-    sound.playUno();
-    store.declareUno();
-  }, [store, sound]);
-
-  const handlePass = useCallback(() => {
-    if (!store.isMyTurn) return;
-    store.passTurn();
-  }, [store]);
-
-  const handleLeave = useCallback(() => {
-    store.leaveRoom();
-    navigate("/");
-  }, [store, navigate]);
-
-  const handleRematch = useCallback(() => {
-    store.leaveRoom();
-    navigate("/");
-  }, [store, navigate]);
-
-  const handleChat = useCallback(() => {
-    if (!chatInput.trim()) return;
-    store.sendChat(chatInput.trim());
-    setChatInput("");
-  }, [chatInput, store]);
+  const handleDraw = useCallback(() => { if (!store.isMyTurn) return; sound.playDraw(); store.drawCard(); }, [store, sound]);
+  const handleUno = useCallback(() => { if (store.myHand.length !== 1) return; sound.playUno(); store.declareUno(); }, [store, sound]);
+  const handlePass = useCallback(() => { if (!store.isMyTurn) return; store.passTurn(); }, [store]);
+  const handleLeave = useCallback(() => { store.leaveRoom(); navigate("/"); }, [store, navigate]);
+  const handleChat = useCallback(() => { if (!chatInput.trim()) return; store.sendChat(chatInput.trim()); setChatInput(""); }, [chatInput, store]);
 
   const otherPlayers = store.players.filter((p) => p.id !== store.playerId);
   const me = store.players.find((p) => p.id === store.playerId);
   const timerPct = store.turnTimer > 0 ? (store.turnTimeLeft / store.turnTimer) * 100 : 100;
+  const hasPlayable = store.myHand.some((c) => isCardPlayable(c, store.topCard, store.activeColor, store.isMyTurn));
+  const myScore = me?.score ?? 0;
 
   return (
-    <div className="h-screen w-screen bg-gradient-to-b from-[#0a1f1a] via-[#0D1B2A] to-[#0a1628] flex flex-col overflow-hidden select-none">
-      {/* Top HUD */}
-      <div className="flex items-center justify-between px-3 py-2 bg-black/30 backdrop-blur-sm border-b border-white/5 z-20 flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <button onClick={handleLeave} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
-            <LogOut className="w-4 h-4 text-gray-300" />
-          </button>
-          <span className="text-xs text-gray-400">Room: <span className="text-[#FFD700] font-mono">{store.roomCode}</span></span>
-        </div>
+    <div className="casino-bg h-screen w-screen flex flex-col overflow-hidden select-none text-[#e2e2ec]">
+      {/* ===== Top bar ===== */}
+      <header className="flex items-center justify-between px-4 py-2.5 z-20 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 text-xs text-gray-400">
-            <ArrowLeftRight className={`w-4 h-4 ${store.direction === "counter_clockwise" ? "rotate-180" : ""}`} />
+          <button onClick={handleLeave} className="p-2 rounded-full glass-bright text-gray-300 hover:text-white"><LogOut className="w-4 h-4" /></button>
+          <span className="font-display font-extrabold text-gold glow-gold-text hidden sm:block">UNO Blitz</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="flex items-center gap-1.5 glass-bright px-3 py-1.5 rounded-full text-sm font-display font-bold text-gold">
+            <Coins className="w-4 h-4" /> {myScore.toLocaleString()} PTS
+          </span>
+          <div className="flex items-center gap-1 glass-bright px-2 py-1.5 rounded-full">
+            <ArrowLeftRight className={`w-4 h-4 text-gray-300 ${store.direction === "counter_clockwise" ? "rotate-180" : ""}`} />
+            <span className="w-4 h-4 rounded-full border border-white/30" style={{ backgroundColor: SUIT_HEX[store.activeColor] || "#888" }} />
           </div>
-          <div className="flex items-center gap-1">
-            <Clock className="w-3 h-3 text-gray-400" />
-            <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full ${timerPct < 30 ? "bg-red-500" : timerPct < 60 ? "bg-yellow-500" : "bg-green-500"}`} style={{ width: `${timerPct}%` }} />
-            </div>
-          </div>
-          <div className="w-4 h-4 rounded-full border border-white/30" style={{ backgroundColor: store.activeColor === "red" ? "#E84855" : store.activeColor === "blue" ? "#0077B6" : store.activeColor === "green" ? "#2A9D8F" : "#E9C46A" }} />
-          <button onClick={() => setSoundEnabled(!soundEnabled)} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
-            {soundEnabled ? <Volume2 className="w-4 h-4 text-gray-300" /> : <VolumeX className="w-4 h-4 text-gray-500" />}
+          <button onClick={() => setSoundEnabled(!soundEnabled)} className="p-2 rounded-full glass-bright text-gray-300 hover:text-white">
+            {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-gray-500" />}
           </button>
-          <button onClick={() => setShowChat(!showChat)} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors relative">
-            <MessageSquare className="w-4 h-4 text-gray-300" />
-            {store.messages.length > 0 && <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full text-[8px] flex items-center justify-center">{store.messages.length}</span>}
+          <button onClick={() => setShowChat(!showChat)} className="p-2 rounded-full glass-bright text-gray-300 hover:text-white relative">
+            <MessageSquare className="w-4 h-4" />
+            {store.messages.length > 0 && <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-suit-red rounded-full text-[8px] flex items-center justify-center font-bold">{store.messages.length}</span>}
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Opponents */}
-      <div className="flex justify-center gap-2 py-2 px-2 flex-shrink-0 flex-wrap">
-        {otherPlayers.map((player, i) => (
-          <motion.div key={player.id} initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
-            className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all ${player.id === store.currentPlayerId ? "bg-white/10 border border-yellow-400/50" : "bg-white/5 border border-white/5"}`}>
-            <div className="relative">
-              <img src={player.avatar} alt={player.username} className="w-9 h-9 rounded-full border-2 border-white/20" />
-              {player.cardCount === 1 && !player.declaredUno && player.id !== store.playerId && (
-                <motion.button whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}
-                  onClick={() => store.catchPlayer(player.id)}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white text-[7px] font-bold px-1 py-0.5 rounded-full animate-pulse">
-                  CATCH
-                </motion.button>
+      {/* ===== Opponents ===== */}
+      <div className="flex justify-center items-start gap-6 md:gap-12 py-2 px-2 flex-shrink-0 flex-wrap">
+        {otherPlayers.map((player, i) => {
+          const isTurn = player.id === store.currentPlayerId;
+          return (
+            <motion.div key={player.id} initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }} className="flex flex-col items-center gap-1">
+              <div className="relative">
+                <TimerRing pct={timerPct} active={isTurn} />
+                <div className={`w-[54px] h-[54px] ${isTurn ? "chip-frame chip-frame-gold" : "chip-frame"}`}>
+                  <img src={player.avatar} alt={player.username} className="w-full h-full rounded-full object-cover" />
+                </div>
+                {/* card count badge */}
+                <span className="absolute -bottom-1 -right-1 bg-casino-surface-3 border border-white/10 text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">{player.cardCount}</span>
+                {/* catch / uno */}
+                {player.cardCount === 1 && !player.declaredUno && (
+                  <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} onClick={() => store.catchPlayer(player.id)}
+                    className="absolute -top-2 -right-2 bg-suit-red text-white text-[7px] font-bold px-1 py-0.5 rounded-full animate-pulse">CATCH</motion.button>
+                )}
+                {player.declaredUno && player.cardCount === 1 && (
+                  <span className="absolute -top-2 -right-2 bg-gold text-[#3e2e00] text-[7px] font-bold px-1.5 py-0.5 rounded-full">UNO</span>
+                )}
+              </div>
+              <span className="text-xs font-bold truncate max-w-[72px]">{player.username}</span>
+              {isTurn ? (
+                <span className="flex items-center gap-1 text-[9px] font-bold text-gold bg-gold/10 px-2 py-0.5 rounded-full">
+                  <motion.span className="w-1.5 h-1.5 rounded-full bg-gold" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity }} /> THINKING
+                </span>
+              ) : (
+                <span className="text-[9px] text-gray-500">{player.cardCount} cards</span>
               )}
-              {player.declaredUno && player.cardCount === 1 && (
-                <span className="absolute -top-1 -right-1 bg-yellow-500 text-[#0D1B2A] text-[7px] font-bold px-1 rounded-full">UNO</span>
-              )}
-            </div>
-            <span className="text-[10px] text-gray-300 truncate max-w-[50px]">{player.username}</span>
-            <span className="text-[9px] text-gray-500">{player.cardCount} cards</span>
-            <span className="text-[9px] text-[#FFD700]">{player.score} pts</span>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Game board center */}
-      <div className="flex-1 flex items-center justify-center gap-6 relative min-h-0">
-        {/* Draw pile */}
-        <motion.div whileHover={{ y: -5 }} className="relative cursor-pointer" onClick={handleDraw}>
-          <div className="w-20 h-28 md:w-24 md:h-36 relative">
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-gray-600 transform rotate-3" />
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-gray-600 transform -rotate-2" />
-            <div className="absolute inset-0 rounded-xl overflow-hidden shadow-xl">
-              <img src="/assets/card-back.png" alt="Draw" className="w-full h-full object-cover rounded-xl" />
-            </div>
-            {store.isMyTurn && <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }} className="absolute -inset-2 rounded-xl border-2 border-dashed border-cyan-400/50" />}
-          </div>
-          <span className="text-center text-[10px] text-gray-400 mt-1 block">Draw</span>
-        </motion.div>
-
-        {/* Discard pile */}
-        <div className="relative">
-          {store.topCard && (
-            <motion.div key={store.topCard.id} initial={{ scale: 0.5, rotate: 10 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 300 }}>
-              <UnoCard card={store.topCard} size="lg" />
             </motion.div>
-          )}
+          );
+        })}
+      </div>
+
+      {/* ===== Board center ===== */}
+      <div className="flex-1 flex items-center justify-center gap-4 md:gap-7 relative min-h-0 px-3">
+        {/* Draw pile */}
+        <motion.button whileHover={{ y: -4 }} whileTap={{ scale: 0.96 }} onClick={handleDraw} className="relative flex flex-col items-center" disabled={!store.isMyTurn}>
+          <div className="relative w-20 h-28 md:w-24 md:h-36">
+            <div className="absolute inset-0 rounded-2xl bg-casino-surface-3 border border-white/10 rotate-3" />
+            <div className="absolute inset-0 rounded-2xl overflow-hidden shadow-xl -rotate-2 border border-white/10">
+              <img src="/assets/card-back.png" alt="Draw" className="w-full h-full object-cover" />
+            </div>
+            {store.isMyTurn && <motion.div animate={{ opacity: [0.3, 0.8, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }} className="absolute -inset-1.5 rounded-2xl border-2 border-dashed border-electric/60" />}
+          </div>
+          <span className="mt-1.5 text-[10px] font-bold tracking-[0.15em] text-electric glass-bright px-2 py-0.5 rounded-full">DRAW</span>
+        </motion.button>
+
+        {/* Discard pile (active card) */}
+        <div className="relative">
+          <AnimatePresence mode="popLayout">
+            {store.topCard && (
+              <motion.div key={store.topCard.id} initial={{ scale: 0.4, rotate: 14, y: -30 }} animate={{ scale: 1, rotate: 0, y: 0 }} exit={{ opacity: 0 }} transition={{ type: "spring", stiffness: 320, damping: 18 }}>
+                <UnoCard card={store.topCard} size="lg" active />
+              </motion.div>
+            )}
+          </AnimatePresence>
           <AnimatePresence mode="wait">
             {lastAction && (
               <motion.div key={lastAction} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-cyan-300 bg-black/60 px-3 py-1 rounded-full">
+                className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] font-semibold text-electric glass-bright px-3 py-1 rounded-full">
                 {lastAction}
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Color picker overlay */}
+        {/* Info panel */}
+        <div className="glass rounded-2xl px-4 py-3 text-center hidden sm:block">
+          <p className="text-[10px] font-bold tracking-[0.15em] text-[#d1c5b0]">CURRENT POOL</p>
+          <p className="font-display font-extrabold text-2xl text-gold glow-gold-text flex items-center gap-1 justify-center"><Coins className="w-4 h-4" /> {store.players.reduce((a, p) => a + (p.score || 0), 0).toLocaleString()}</p>
+          <p className="text-[10px] text-gray-500 mt-1">Round {store.roundNumber || 1}</p>
+        </div>
+
+        {/* Color picker */}
         <AnimatePresence>
           {store.showColorPicker && (
-            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
-              className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-30">
-              <div className="bg-[#1B2838] rounded-2xl p-6 border border-white/10 shadow-2xl">
-                <h3 className="text-white font-bold text-lg text-center mb-4">Choose Color</h3>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-30">
+              <motion.div initial={{ scale: 0.85, y: 10 }} animate={{ scale: 1, y: 0 }} className="glass rounded-3xl p-6">
+                <h3 className="font-display font-bold text-lg text-center mb-4">Choose a Color</h3>
                 <ColorPicker onSelect={handleColorSelect} />
-              </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Turn indicator */}
-      <AnimatePresence>
-        {store.isMyTurn && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-center py-0.5 flex-shrink-0">
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-xs font-bold px-4 py-1 rounded-full shadow-lg shadow-cyan-500/30">
+      {/* ===== Turn indicator + UNO button ===== */}
+      <div className="flex flex-col items-center gap-1.5 flex-shrink-0 py-1">
+        <AnimatePresence>
+          {store.isMyTurn && (
+            <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              className="text-[11px] font-bold text-electric glow-cyan-text glass-bright px-3 py-1 rounded-full">
               YOUR TURN
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Score bar */}
-      <div className="flex justify-center gap-3 px-4 py-1 flex-shrink-0">
-        {store.players.map((p) => (
-          <div key={p.id} className={`flex items-center gap-1 text-[10px] ${p.id === store.playerId ? "text-cyan-300" : "text-gray-500"}`}>
-            <img src={p.avatar} className="w-4 h-4 rounded-full" alt="" />
-            <span>{p.score}pts</span>
-          </div>
-        ))}
+            </motion.span>
+          )}
+        </AnimatePresence>
+        <div className="flex items-center gap-3">
+          {store.isMyTurn && !hasPlayable && store.myHand.length > 0 && (
+            <button onClick={handlePass} className="btn-3d btn-ghost px-5 py-2 text-sm">Pass</button>
+          )}
+          <motion.button
+            whileHover={{ scale: store.myHand.length === 1 && !me?.declaredUno ? 1.08 : 1 }}
+            whileTap={{ scale: 0.94 }}
+            onClick={handleUno}
+            disabled={store.myHand.length !== 1 || me?.declaredUno}
+            className={`w-16 h-16 font-display font-extrabold text-lg flex items-center justify-center ${
+              store.myHand.length === 1 && !me?.declaredUno
+                ? "btn-3d btn-red shadow-glow-red animate-glow-pulse"
+                : "bg-white/5 text-gray-600 border border-white/10 cursor-not-allowed"
+            }`}
+            style={{ borderRadius: "9999px" }}
+          >
+            UNO!
+          </motion.button>
+        </div>
       </div>
 
-      {/* My hand */}
-      <div className="px-2 pb-2 flex-shrink-0">
-        <div className="flex items-center justify-between mb-1 px-1">
-          <div className="flex items-center gap-1">
-            <img src={me?.avatar || "/assets/avatar-robot.png"} alt="You" className="w-7 h-7 rounded-full border border-white/20" />
-            <span className="text-xs text-white">{me?.username}</span>
-          </div>
-          <div className="flex gap-1">
-            {store.myHand.length === 1 && !me?.declaredUno && (
-              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handleUno}
-                className="bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-xs px-3 py-1 rounded-full shadow-lg animate-pulse">
-                UNO!
-              </motion.button>
-            )}
-            {store.isMyTurn && store.myHand.length > 0 && !store.myHand.some((c) => isCardPlayable(c, store.topCard, store.activeColor, store.isMyTurn)) && (
-              <button onClick={handlePass} className="bg-white/10 text-white text-xs px-3 py-1 rounded-full hover:bg-white/20 transition-colors">Pass</button>
-            )}
-          </div>
+      {/* ===== My hand ===== */}
+      <div className="flex-shrink-0 px-2 pb-3 pt-1">
+        <div className="flex items-center justify-center gap-2 mb-1.5">
+          <div className="chip-frame w-7 h-7"><img src={me?.avatar || "/assets/avatar-robot.png"} alt="" className="w-full h-full rounded-full object-cover" /></div>
+          <span className="text-xs font-bold">{me?.username}</span>
+          <span className="text-[10px] text-gray-500">· {store.myHand.length} cards</span>
         </div>
-
-        {/* Cards */}
-        <div className="flex justify-center overflow-x-auto pb-1 px-1" style={{ minHeight: "110px" }}>
-          <div className="flex" style={{ paddingLeft: `${Math.min(store.myHand.length * 8, 60)}px` }}>
+        <div className="flex justify-center overflow-x-auto pb-1" style={{ minHeight: "108px" }}>
+          <div className="flex items-end" style={{ paddingLeft: `${Math.min(store.myHand.length * 10, 70)}px` }}>
             {store.myHand.map((card, index) => {
               const playable = isCardPlayable(card, store.topCard, store.activeColor, store.isMyTurn);
               return (
-                <div key={card.id} className="flex-shrink-0" style={{ marginLeft: `-${Math.min(store.myHand.length * 4, 32)}px` }}>
-                  <UnoCard card={card} size="sm" playable={playable} onClick={playable ? () => handlePlayCard(index) : undefined} />
-                </div>
+                <motion.div
+                  key={card.id}
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{ y: playable ? -6 : 0, opacity: 1 }}
+                  transition={{ delay: index * 0.03, type: "spring", stiffness: 260 }}
+                  className="flex-shrink-0 relative z-0 hover:z-10"
+                  style={{ marginLeft: `-${Math.min(store.myHand.length * 5, 38)}px` }}
+                >
+                  <UnoCard card={card} size="sm" playable={playable} onClick={playable ? () => handlePlayCard(index) : undefined} className={playable ? "" : "opacity-75 saturate-75"} />
+                </motion.div>
               );
             })}
           </div>
         </div>
       </div>
 
-      {/* Chat panel */}
+      {/* ===== Chat panel ===== */}
       <AnimatePresence>
         {showChat && (
           <motion.div initial={{ opacity: 0, x: 300 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 300 }}
-            className="fixed right-0 top-0 bottom-0 w-72 bg-[#1B2838]/95 backdrop-blur-md border-l border-white/10 z-40 flex flex-col">
+            className="fixed right-0 top-0 bottom-0 w-72 glass border-l border-white/10 z-40 flex flex-col">
             <div className="flex items-center justify-between p-3 border-b border-white/10">
-              <h3 className="text-white font-bold text-sm">Chat</h3>
-              <button onClick={() => setShowChat(false)} className="text-gray-400 hover:text-white"><Home className="w-4 h-4" /></button>
+              <h3 className="font-display font-bold text-sm">Chat</h3>
+              <button onClick={() => setShowChat(false)} className="text-gray-400 hover:text-white"><X className="w-4 h-4" /></button>
             </div>
             <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
               {store.messages.map((msg, i) => (
-                <div key={i} className="text-xs"><span className="text-cyan-400 font-medium">{msg.username}:</span> <span className="text-gray-300">{msg.message}</span></div>
+                <div key={i} className="text-xs"><span className="text-electric font-bold">{msg.username}:</span> <span className="text-[#d1c5b0]">{msg.message}</span></div>
               ))}
             </div>
-            <div className="p-3 border-t border-white/10">
-              <div className="flex gap-2">
-                <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleChat()}
-                  placeholder="Type..." className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-xs placeholder-gray-500 focus:outline-none focus:border-cyan-400" />
-                <button onClick={handleChat} className="bg-cyan-500 text-white px-3 py-2 rounded-lg hover:bg-cyan-600 transition-colors text-xs">Send</button>
-              </div>
+            <div className="p-3 border-t border-white/10 flex gap-2">
+              <input value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleChat()} placeholder="Type…"
+                className="flex-1 glass-bright rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-electric" />
+              <button onClick={handleChat} className="btn-3d btn-cyan px-3 text-xs">Send</button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Round End Overlay */}
+      {/* ===== Round End ===== */}
       <AnimatePresence>
         {store.phase === "round_end" && store.roundScores && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-            <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }}
-              className="bg-[#1B2838] rounded-2xl p-5 border border-white/10 shadow-2xl max-w-xs w-full mx-4">
-              <h2 className="text-xl font-bold text-center text-[#FFD700] mb-1">Round Over!</h2>
-              <p className="text-center text-gray-400 text-xs mb-3">{store.roundScores.find((s) => s.roundWinner)?.username} wins</p>
-              <div className="space-y-1.5 mb-3">
-                {store.roundScores.map((score, i) => (
-                  <div key={i} className={`flex items-center justify-between p-2 rounded-lg ${score.roundWinner ? "bg-yellow-500/10 border border-yellow-500/30" : "bg-white/5"}`}>
-                    <span className="text-white text-xs">{score.username}</span>
-                    <span className={`text-xs font-bold ${score.roundWinner ? "text-yellow-400" : "text-gray-400"}`}>{score.points > 0 ? `+${score.points}` : score.points}</span>
-                  </div>
-                ))}
-              </div>
-              <p className="text-center text-gray-500 text-xs animate-pulse">Next round starting...</p>
-            </motion.div>
-          </motion.div>
+          <Overlay>
+            <h2 className="font-display text-2xl font-extrabold text-center text-gold glow-gold-text mb-1">Round Over!</h2>
+            <p className="text-center text-[#d1c5b0] text-xs mb-3">{store.roundScores.find((s) => s.roundWinner)?.username} wins the round</p>
+            <div className="space-y-1.5 mb-3">
+              {store.roundScores.map((score, i) => (
+                <div key={i} className={`flex items-center justify-between p-2 rounded-lg ${score.roundWinner ? "bg-gold/10 border border-gold/30" : "glass-bright"}`}>
+                  <span className="text-sm">{score.username}</span>
+                  <span className={`text-sm font-bold ${score.roundWinner ? "text-gold" : "text-gray-400"}`}>{score.points > 0 ? `+${score.points}` : score.points}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-center text-gray-500 text-xs animate-pulse">Next round starting…</p>
+          </Overlay>
         )}
       </AnimatePresence>
 
-      {/* Match End Overlay */}
+      {/* ===== Match End ===== */}
       <AnimatePresence>
         {store.phase === "match_end" && store.finalScores && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-            <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }}
-              className="bg-[#1B2838] rounded-2xl p-5 border border-yellow-500/30 shadow-2xl max-w-xs w-full mx-4 text-center">
-              <motion.img src="/assets/trophy.png" alt="Trophy" className="w-16 h-16 mx-auto mb-2"
-                animate={{ rotate: [0, -10, 10, 0], y: [0, -5, 0] }} transition={{ duration: 2, repeat: Infinity }} />
-              <h2 className="text-xl font-bold text-[#FFD700] mb-1">{store.matchWinner} Wins!</h2>
-              <div className="space-y-1.5 mb-5 mt-3">
-                {store.finalScores.map((score, i) => (
-                  <div key={i} className={`flex items-center justify-between p-2 rounded-lg ${i === 0 ? "bg-yellow-500/10 border border-yellow-500/30" : i === 1 ? "bg-gray-400/10" : "bg-white/5"}`}>
-                    <span className="text-white text-xs">#{score.rank} {score.username}</span>
-                    <span className="text-[#FFD700] font-bold text-xs">{score.score} pts</span>
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-3">
-                <button onClick={handleRematch} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#0077B6] to-[#2A9D8F] text-white font-bold text-sm flex items-center justify-center gap-2">
-                  <RotateCcw className="w-4 h-4" /> New Game
-                </button>
-                <button onClick={handleLeave} className="flex-1 py-2.5 rounded-xl bg-white/10 text-white font-medium hover:bg-white/20 transition-all text-sm">
-                  Menu
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
+          <Overlay gold>
+            <motion.img src="/assets/trophy.png" alt="Trophy" className="w-20 h-20 mx-auto mb-2" animate={{ rotate: [0, -8, 8, 0], y: [0, -6, 0] }} transition={{ duration: 2, repeat: Infinity }} />
+            <h2 className="font-display text-2xl font-extrabold text-gold glow-gold-text text-center mb-3">{store.matchWinner} Wins!</h2>
+            <div className="space-y-1.5 mb-5">
+              {store.finalScores.map((score, i) => (
+                <div key={i} className={`flex items-center justify-between p-2 rounded-lg ${i === 0 ? "bg-gold/10 border border-gold/30" : "glass-bright"}`}>
+                  <span className="text-sm">#{score.rank} {score.username}</span>
+                  <span className="text-gold font-bold text-sm">{score.score} pts</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-3">
+              <button onClick={handleLeave} className="btn-3d btn-cyan flex-1 py-3 flex items-center justify-center gap-2 text-sm"><RotateCcw className="w-4 h-4" /> New Game</button>
+              <button onClick={handleLeave} className="btn-3d btn-ghost flex-1 py-3 text-sm">Menu</button>
+            </div>
+          </Overlay>
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+function Overlay({ children, gold }: { children: ReactNode; gold?: boolean }) {
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <motion.div initial={{ scale: 0.85, y: 20 }} animate={{ scale: 1, y: 0 }} transition={{ type: "spring", stiffness: 260, damping: 22 }}
+        className={`glass rounded-3xl p-6 max-w-xs w-full ${gold ? "border border-gold/30" : ""}`}>
+        {children}
+      </motion.div>
+    </motion.div>
   );
 }

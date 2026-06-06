@@ -27,10 +27,171 @@
   }
 
   body {
-    @apply bg-[#0D1B2A] text-white overflow-hidden;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    @apply bg-casino-bg text-[#e2e2ec] overflow-hidden;
+    font-family: 'Nunito Sans', system-ui, -apple-system, sans-serif;
   }
 }
+
+/* ============================================================
+   Digital Casino Blitz — design-system utilities
+   ============================================================ */
+
+/* Spotlight casino-felt background */
+.casino-bg {
+  background: radial-gradient(ellipse 90% 70% at 50% 30%, #20222e 0%, #15171f 45%, #0c0e15 100%);
+  position: relative;
+}
+.casino-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* Frosted-midnight glass panel */
+.glass {
+  background: rgba(27, 30, 43, 0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 20px 40px -12px rgba(0, 0, 0, 0.6);
+}
+.glass-bright {
+  background: rgba(40, 42, 49, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 3D "press" button — thick bottom edge, depresses on active */
+.btn-3d {
+  position: relative;
+  border-radius: 0.9rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  box-shadow: 0 4px 0 0 var(--btn-edge, rgba(0, 0, 0, 0.4)), 0 6px 16px -4px rgba(0, 0, 0, 0.5);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+}
+.btn-3d:hover { filter: brightness(1.06); }
+.btn-3d:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 0 var(--btn-edge, rgba(0, 0, 0, 0.4)), 0 3px 8px -4px rgba(0, 0, 0, 0.5);
+}
+.btn-3d:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-gold { --btn-edge: #b88a16; background: linear-gradient(180deg, #ffd96f, #f0b431); color: #3e2e00; }
+.btn-cyan { --btn-edge: #0a8aa3; background: linear-gradient(180deg, #3fe2ff, #16b8d8); color: #00232b; }
+.btn-red  { --btn-edge: #9c1d18; background: linear-gradient(180deg, #f0463d, #c5271f); color: #fff; }
+.btn-ghost { --btn-edge: rgba(0, 0, 0, 0.45); background: rgba(255, 255, 255, 0.07); color: #e2e2ec; border: 1px solid rgba(255, 255, 255, 0.1); }
+
+/* Casino-chip avatar frame */
+.chip-frame { position: relative; border-radius: 9999px; padding: 3px; background: conic-gradient(from 0deg, #3a3d49, #5a5d6b, #3a3d49, #5a5d6b, #3a3d49); }
+.chip-frame-active { background: conic-gradient(from 0deg, #27d9f8, #00cdec, #27d9f8, #7fefff, #27d9f8); box-shadow: 0 0 18px rgba(39, 217, 248, 0.5); }
+.chip-frame-gold { background: conic-gradient(from 0deg, #ffd15c, #edc14e, #fff2da, #ffd15c); box-shadow: 0 0 18px rgba(255, 209, 92, 0.5); }
+
+/* Text glows */
+.glow-gold-text { text-shadow: 0 0 18px rgba(255, 209, 92, 0.55); }
+.glow-cyan-text { text-shadow: 0 0 18px rgba(39, 217, 248, 0.55); }
+
+/* OTP-style code box */
+.otp-box {
+  width: 2.75rem;
+  height: 3.25rem;
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.95);
+  color: #11131a;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+  text-align: center;
+  box-shadow: inset 0 -3px 0 0 rgba(0, 0, 0, 0.12);
+}
+
+/* ---------- Glossy UNO card ---------- */
+/* white card "stock" frame */
+.uno-shell {
+  position: relative;
+  background: linear-gradient(160deg, #ffffff, #ececec);
+  border-radius: 1rem;
+  padding: 3px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 8px 18px -6px rgba(0, 0, 0, 0.6);
+}
+/* colored interior */
+.uno-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.8rem;
+  overflow: hidden;
+  box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.22), inset 0 2px 4px rgba(255, 255, 255, 0.25);
+}
+/* top-left gloss highlight */
+.uno-inner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 40%);
+  pointer-events: none;
+}
+/* the iconic white diagonal oval */
+.uno-oval {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 124%;
+  height: 56%;
+  transform: translate(-50%, -50%) rotate(-22deg);
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.12);
+}
+.suit-red    { background: linear-gradient(160deg, #ef4b44, #cf2019); }
+.suit-yellow { background: linear-gradient(160deg, #ffc62e, #e3a500); }
+.suit-green  { background: linear-gradient(160deg, #20bb63, #128a45); }
+.suit-blue   { background: linear-gradient(160deg, #2f93e6, #1463b8); }
+.suit-wild   { background: conic-gradient(from 45deg, #e4322b 0deg 90deg, #f6b500 90deg 180deg, #18a558 180deg 270deg, #1e7fd6 270deg 360deg); }
+
+.glyph-red { color: #cf2019; }
+.glyph-yellow { color: #d99e00; }
+.glyph-green { color: #128a45; }
+.glyph-blue { color: #1463b8; }
+.glyph-wild { color: #1b1e2b; }
+
+/* card numeral / glyph */
+.uno-glyph {
+  position: relative;
+  z-index: 1;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.12);
+  line-height: 1;
+}
+.uno-corner {
+  position: relative;
+  z-index: 1;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+  line-height: 1;
+}
+
+/* glowing "active card in play" ring */
+.card-active-glow {
+  box-shadow: 0 0 0 3px rgba(39, 217, 248, 0.6), 0 0 32px rgba(39, 217, 248, 0.45);
+}
+.card-playable-glow {
+  box-shadow: 0 0 0 2px rgba(255, 209, 92, 0.8), 0 0 22px rgba(255, 209, 92, 0.5);
+}
+
+/* bottom nav item */
+.nav-item { color: #8b8f9c; transition: color 0.15s ease; }
+.nav-item-active { color: #ffd15c; }
 
 /* UNO Card Colors */
 .uno-card-red { background: linear-gradient(135deg, #E84855, #c73a47); }

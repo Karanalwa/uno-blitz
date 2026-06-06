@@ -6,25 +6,45 @@ interface UnoCardProps {
   size?: "sm" | "md" | "lg";
   playable?: boolean;
   faceDown?: boolean;
+  active?: boolean;
   onClick?: () => void;
   className?: string;
 }
 
-const colorMap: Record<string, string> = {
-  red: "from-[#E84855] to-[#c73a47]",
-  blue: "from-[#0077B6] to-[#006094]",
-  green: "from-[#2A9D8F] to-[#228377]",
-  yellow: "from-[#E9C46A] to-[#d4b055]",
-  wild: "from-[#1a1a2e] to-[#16213e]",
-};
-
 const sizeMap = {
-  sm: { w: "w-14", h: "h-20", text: "text-lg", corner: "text-[8px]", inner: "w-10 h-14", pad: "p-1" },
-  md: { w: "w-20", h: "h-28", text: "text-2xl", corner: "text-[10px]", inner: "w-14 h-20", pad: "p-1.5" },
-  lg: { w: "w-28", h: "h-40", text: "text-4xl", corner: "text-xs", inner: "w-20 h-28", pad: "p-2" },
+  sm: { w: "w-16", h: "h-24", glyph: "text-2xl", corner: "text-[11px]", pad: "p-1" },
+  md: { w: "w-20", h: "h-28", glyph: "text-3xl", corner: "text-sm", pad: "p-1.5" },
+  lg: { w: "w-28", h: "h-40", glyph: "text-5xl", corner: "text-lg", pad: "p-2" },
 };
 
-export function UnoCard({ card, size = "md", playable = false, faceDown = false, onClick, className = "" }: UnoCardProps) {
+// What to show in the center of the card
+function centerGlyph(card: Card): string {
+  if (card.type === "wild4") return "+4";
+  if (card.type === "wild") return "★";
+  if (card.type === "skip") return "⊘";
+  if (card.type === "reverse") return "⇄";
+  if (card.type === "draw2") return "+2";
+  return card.display;
+}
+
+function cornerGlyph(card: Card): string {
+  if (card.type === "wild4") return "+4";
+  if (card.type === "wild") return "W";
+  if (card.type === "skip") return "S";
+  if (card.type === "reverse") return "R";
+  if (card.type === "draw2") return "+2";
+  return card.display;
+}
+
+export function UnoCard({
+  card,
+  size = "md",
+  playable = false,
+  faceDown = false,
+  active = false,
+  onClick,
+  className = "",
+}: UnoCardProps) {
   const s = sizeMap[size];
 
   if (faceDown) {
@@ -32,80 +52,74 @@ export function UnoCard({ card, size = "md", playable = false, faceDown = false,
       <motion.div
         whileHover={onClick ? { y: -8, scale: 1.05 } : {}}
         whileTap={onClick ? { scale: 0.95 } : {}}
-        className={`${s.w} ${s.h} rounded-xl border-2 border-gray-600 flex items-center justify-center shadow-lg cursor-pointer ${className}`}
+        className={`${s.w} ${s.h} rounded-2xl overflow-hidden shadow-lg ${onClick ? "cursor-pointer" : ""} ${className}`}
         onClick={onClick}
       >
-        <img src="/assets/card-back.png" alt="Card back" className={`${s.w} ${s.h} rounded-xl object-cover`} />
+        <img src="/assets/card-back.png" alt="Card back" className="w-full h-full object-cover" />
       </motion.div>
     );
   }
 
   const isWild = card.type === "wild" || card.type === "wild4";
-  const gradient = colorMap[card.color] || colorMap.wild;
-  const playableClass = playable ? "uno-card-playable" : "";
+  const suit = isWild ? "wild" : (card.color as "red" | "yellow" | "green" | "blue");
+  const center = centerGlyph(card);
+  const corner = cornerGlyph(card);
 
   return (
     <motion.div
-      whileHover={onClick ? { y: -12, scale: 1.08 } : {}}
+      whileHover={onClick ? { y: -16, scale: 1.08 } : {}}
       whileTap={onClick ? { scale: 0.95 } : {}}
-      className={`${s.w} ${s.h} rounded-xl bg-gradient-to-br ${gradient} border-2 border-white/20 
-        flex flex-col items-center justify-between shadow-lg cursor-pointer select-none
-        ${playableClass} ${className}`}
+      className={`uno-shell ${s.w} ${s.h} ${onClick ? "cursor-pointer" : ""} ${
+        active ? "card-active-glow" : playable ? "card-playable-glow" : ""
+      } ${className}`}
       onClick={onClick}
     >
-      {/* Top-left corner */}
-      <div className={`${s.pad} self-start`}>
-        <span className={`${s.corner} font-bold text-white drop-shadow`}>
-          {isWild ? (card.type === "wild4" ? "+4" : "W") : card.display}
-        </span>
-      </div>
+      <div className={`uno-inner suit-${suit}`}>
+        {/* top-left corner */}
+        <span className={`uno-corner ${s.corner} absolute top-1 left-1.5`}>{corner}</span>
 
-      {/* Center */}
-      <div className={`${s.inner} rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm`}>
-        {isWild ? (
-          card.type === "wild4" ? (
-            <div className="w-full h-full rounded-full bg-gradient-to-br from-red-500 via-blue-500 via-yellow-500 to-green-500 flex items-center justify-center">
-              <span className={`${s.text} font-black text-white drop-shadow-lg`}>+4</span>
-            </div>
-          ) : (
-            <div className="w-full h-full rounded-full bg-gradient-to-br from-red-500 via-blue-500 to-green-500 flex items-center justify-center">
-              <span className={`${s.text} font-black text-white drop-shadow-lg`}>W</span>
-            </div>
-          )
-        ) : (
-          <span className={`${s.text} font-black text-white drop-shadow-lg`}>
-            {card.type === "skip" ? "S" : card.type === "reverse" ? "R" : card.type === "draw2" ? "+2" : card.display}
-          </span>
-        )}
-      </div>
+        {/* white diagonal oval */}
+        <div className="uno-oval" />
 
-      {/* Bottom-right corner (rotated) */}
-      <div className={`${s.pad} self-end rotate-180`}>
-        <span className={`${s.corner} font-bold text-white drop-shadow`}>
-          {isWild ? (card.type === "wild4" ? "+4" : "W") : card.display}
-        </span>
+        {/* center glyph */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className={`uno-glyph ${s.glyph} glyph-${suit}`}>{center}</span>
+        </div>
+
+        {/* bottom-right corner (rotated) */}
+        <span className={`uno-corner ${s.corner} absolute bottom-1 right-1.5 rotate-180`}>{corner}</span>
       </div>
     </motion.div>
   );
 }
 
-export function ColorPicker({ onSelect, className = "" }: { onSelect: (color: "red" | "blue" | "green" | "yellow") => void; className?: string }) {
-  const colors: Array<{ color: "red" | "blue" | "green" | "yellow"; bg: string }> = [
-    { color: "red", bg: "from-[#E84855] to-[#c73a47]" },
-    { color: "blue", bg: "from-[#0077B6] to-[#006094]" },
-    { color: "green", bg: "from-[#2A9D8F] to-[#228377]" },
-    { color: "yellow", bg: "from-[#E9C46A] to-[#d4b055]" },
+export function ColorPicker({
+  onSelect,
+  className = "",
+}: {
+  onSelect: (color: "red" | "blue" | "green" | "yellow") => void;
+  className?: string;
+}) {
+  const colors: Array<{ color: "red" | "blue" | "green" | "yellow"; cls: string }> = [
+    { color: "red", cls: "suit-red" },
+    { color: "yellow", cls: "suit-yellow" },
+    { color: "green", cls: "suit-green" },
+    { color: "blue", cls: "suit-blue" },
   ];
 
   return (
-    <div className={`flex gap-3 ${className}`}>
-      {colors.map(({ color, bg }) => (
+    <div className={`grid grid-cols-2 gap-3 ${className}`}>
+      {colors.map(({ color, cls }, i) => (
         <motion.button
           key={color}
-          whileHover={{ scale: 1.15, y: -5 }}
+          initial={{ scale: 0, rotate: -30 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ delay: i * 0.05, type: "spring", stiffness: 320 }}
+          whileHover={{ scale: 1.12, y: -4 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => onSelect(color)}
-          className={`w-16 h-16 rounded-full bg-gradient-to-br ${bg} border-3 border-white/40 shadow-xl`}
+          aria-label={color}
+          className={`${cls} w-16 h-16 rounded-2xl border-2 border-white/50 shadow-xl`}
         />
       ))}
     </div>
