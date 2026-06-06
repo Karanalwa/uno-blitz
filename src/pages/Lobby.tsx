@@ -33,7 +33,7 @@ export default function Lobby() {
   const maxSlots = store.settings?.playerCount || 6;
 
   return (
-    <div className="casino-bg min-h-screen w-full flex text-[#e2e2ec] overflow-hidden">
+    <div className="casino-bg min-h-[100dvh] w-full flex text-[#e2e2ec] overflow-x-hidden">
       {/* ===== Sidebar (desktop) ===== */}
       <aside className="hidden md:flex flex-col w-56 glass border-r border-white/5 p-4 gap-4 flex-shrink-0">
         <div className="flex items-center gap-2 mb-2">
@@ -62,7 +62,7 @@ export default function Lobby() {
       {/* ===== Main ===== */}
       <main className="flex-1 flex flex-col p-4 md:p-6 min-w-0">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 mb-4">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-4 mb-4">
           <div>
             <button onClick={handleLeave} className="md:hidden flex items-center gap-1 text-xs text-gray-400 hover:text-white mb-2">
               <ArrowLeft className="w-4 h-4" /> Leave
@@ -79,7 +79,7 @@ export default function Lobby() {
           </div>
 
           {/* Game settings */}
-          <div className="glass rounded-2xl p-3 border border-electric/30 min-w-[150px]">
+          <div className="glass rounded-2xl p-3 border border-electric/30 w-full md:w-auto md:min-w-[150px]">
             <div className="flex items-center gap-1.5 mb-2 text-electric">
               <Settings2 className="w-3.5 h-3.5" />
               <span className="text-[10px] font-bold tracking-[0.15em]">GAME SETTINGS</span>

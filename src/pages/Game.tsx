@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeftRight, LogOut, MessageSquare, RotateCcw, Volume2, VolumeX, X, Coins } from "lucide-react";
 import { useGameStore } from "@/store/gameStore";
 import { useSound } from "@/hooks/useSound";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { UnoCard, ColorPicker } from "@/components/UnoCard";
 import type { CardColor } from "../../api/game/types";
 
@@ -39,6 +40,7 @@ export default function Game() {
   const navigate = useNavigate();
   const store = useGameStore();
   const sound = useSound();
+  const isMobile = useIsMobile();
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [showChat, setShowChat] = useState(false);
   const [chatInput, setChatInput] = useState("");
@@ -93,15 +95,15 @@ export default function Game() {
   const myScore = me?.score ?? 0;
 
   return (
-    <div className="casino-bg h-screen w-screen flex flex-col overflow-hidden select-none text-[#e2e2ec]">
+    <div className="casino-bg h-[100dvh] w-full flex flex-col overflow-hidden select-none text-[#e2e2ec]">
       {/* ===== Top bar ===== */}
-      <header className="flex items-center justify-between px-4 py-2.5 z-20 flex-shrink-0">
-        <div className="flex items-center gap-3">
+      <header className="flex items-center justify-between px-2.5 py-2 md:px-4 md:py-2.5 z-20 flex-shrink-0">
+        <div className="flex items-center gap-2 md:gap-3">
           <button onClick={handleLeave} className="p-2 rounded-full glass-bright text-gray-300 hover:text-white"><LogOut className="w-4 h-4" /></button>
           <span className="font-display font-extrabold text-gold glow-gold-text hidden sm:block">UNO Blitz</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 glass-bright px-3 py-1.5 rounded-full text-sm font-display font-bold text-gold">
+        <div className="flex items-center gap-1.5 md:gap-2">
+          <span className="flex items-center gap-1.5 glass-bright px-2.5 md:px-3 py-1.5 rounded-full text-xs md:text-sm font-display font-bold text-gold">
             <Coins className="w-4 h-4" /> {myScore.toLocaleString()} PTS
           </span>
           <div className="flex items-center gap-1 glass-bright px-2 py-1.5 rounded-full">
@@ -119,7 +121,7 @@ export default function Game() {
       </header>
 
       {/* ===== Opponents ===== */}
-      <div className="flex justify-center items-start gap-6 md:gap-12 py-2 px-2 flex-shrink-0 flex-wrap">
+      <div className="flex justify-center items-start gap-3 sm:gap-6 md:gap-12 py-1.5 sm:py-2 px-2 flex-shrink-0 flex-wrap">
         {otherPlayers.map((player, i) => {
           const isTurn = player.id === store.currentPlayerId;
           return (
@@ -154,7 +156,7 @@ export default function Game() {
       </div>
 
       {/* ===== Board center ===== */}
-      <div className="flex-1 flex items-center justify-center gap-4 md:gap-7 relative min-h-0 px-3">
+      <div className="flex-1 flex items-center justify-center gap-2 sm:gap-4 md:gap-7 relative min-h-0 px-2 sm:px-3">
         {/* Draw pile */}
         <motion.button whileHover={{ y: -4 }} whileTap={{ scale: 0.96 }} onClick={handleDraw} className="relative flex flex-col items-center" disabled={!store.isMyTurn}>
           <div className="relative w-20 h-28 md:w-24 md:h-36">
@@ -178,7 +180,7 @@ export default function Game() {
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ duration: 0.42, times: [0, 0.68, 1], ease: "easeOut" }}
               >
-                <UnoCard card={store.topCard} size="lg" active />
+                <UnoCard card={store.topCard} size={isMobile ? "md" : "lg"} active />
               </motion.div>
             )}
           </AnimatePresence>

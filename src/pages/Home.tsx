@@ -68,7 +68,7 @@ export default function Home() {
   };
 
   return (
-    <div className="casino-bg min-h-screen w-full flex flex-col text-[#e2e2ec] overflow-hidden">
+    <div className="casino-bg min-h-[100dvh] w-full flex flex-col text-[#e2e2ec] overflow-x-hidden">
       {/* ===== Top bar ===== */}
       <header className="flex items-center justify-between px-5 py-3 z-20">
         <div className="flex items-center gap-2">
@@ -127,7 +127,7 @@ export default function Home() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 200 }}
-            className="font-display font-extrabold text-6xl md:text-7xl tracking-tight leading-none"
+            className="font-display font-extrabold text-5xl sm:text-6xl md:text-7xl tracking-tight leading-none"
           >
             <span className="text-[#fff2da]">UNO</span>{" "}
             <span className="text-gold glow-gold-text">BLITZ</span>
