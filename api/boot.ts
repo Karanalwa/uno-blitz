@@ -56,7 +56,7 @@ export default app;
 async function startServer() {
   const { serve } = await import("@hono/node-server");
   const port = parseInt(process.env.PORT || "3000");
-  const hostname = process.env.HOSTNAME || "0.0.0.0";
+  const hostname = "0.0.0.0";
 
   const server = serve({ fetch: app.fetch, port, hostname }, () => {
     console.log(`Server running on http://${hostname}:${port}/`);
