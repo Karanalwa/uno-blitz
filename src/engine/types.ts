@@ -51,15 +51,18 @@ export interface GameSettings {
 
 export const CARD_COLORS: CardColor[] = ["red", "blue", "green", "yellow"];
 
+// Real-person avatar photos (pravatar.cc provides realistic face portraits).
 export const AVATARS = [
-  "/assets/avatar-robot.png",
-  "/assets/avatar-cat.png",
-  "/assets/avatar-alien.png",
-  "/assets/avatar-ninja.png",
-  "/assets/avatar-pirate.png",
-  "/assets/avatar-astronaut.png",
-  "/assets/avatar-dragon.png",
-  "/assets/avatar-unicorn.png",
+  "https://i.pravatar.cc/200?img=12",
+  "https://i.pravatar.cc/200?img=5",
+  "https://i.pravatar.cc/200?img=33",
+  "https://i.pravatar.cc/200?img=47",
+  "https://i.pravatar.cc/200?img=32",
+  "https://i.pravatar.cc/200?img=26",
+  "https://i.pravatar.cc/200?img=16",
+  "https://i.pravatar.cc/200?img=68",
 ];
 
-export const BOT_NAMES = ["Bot-Alpha", "Bot-Beta", "Bot-Gamma", "Bot-Delta", "Bot-Epsilon", "Bot-Zeta", "Bot-Omega"];
+export const DEFAULT_AVATAR = AVATARS[0];
+
+export const BOT_NAMES = ["Alex", "Maya", "Liam", "Sofia", "Noah", "Emma", "Ethan"];

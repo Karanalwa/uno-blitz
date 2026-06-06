@@ -4,6 +4,20 @@ import type { GameSettings } from "@/engine/types";
 import { initGame, playCard, handleDraw, handlePass, handleDeclareUno, checkMatchEnd, startNewRound, getBotPlay } from "@/engine/uno-engine";
 import { getBackendWsUrl } from "@/config";
 
+// Snapshot engine players into the UI player list (keeps card counts live in solo).
+function snapshotPlayers(gs: any) {
+  return gs.players.map((p: any) => ({
+    id: p.id,
+    username: p.username,
+    avatar: p.avatar,
+    cardCount: p.hand ? p.hand.length : p.cardCount,
+    score: p.score,
+    declaredUno: p.declaredUno,
+    isHost: p.isHost,
+    isReady: p.isReady,
+  }));
+}
+
 interface PlayerInfo {
   id: string;
   username: string;
@@ -153,7 +167,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
     localStorage.setItem("uno_username", name);
     set({ username: name });
-    ws.send(JSON.stringify({ type: "create_room", name: settings.name, maxPlayers: settings.maxPlayers, mode: settings.mode, turnTimer: settings.turnTimer, username: name }));
+    ws.send(JSON.stringify({ type: "create_room", name: settings.name, maxPlayers: settings.maxPlayers, mode: settings.mode, turnTimer: settings.turnTimer, username: name, avatar: localStorage.getItem("uno_playerAvatar") || "https://i.pravatar.cc/200?img=12" }));
   },
 
   joinRoom: (code, name) => {
@@ -161,7 +175,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
     localStorage.setItem("uno_username", name);
     set({ username: name });
-    ws.send(JSON.stringify({ type: "join_room", code, username: name }));
+    ws.send(JSON.stringify({ type: "join_room", code, username: name, avatar: localStorage.getItem("uno_playerAvatar") || "https://i.pravatar.cc/200?img=12" }));
   },
 
   toggleReady: () => {
@@ -183,36 +197,42 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   playCard: (cardIndex, chosenColor) => {
+    if (get().gameMode === "solo") { get().playMyCard(cardIndex, chosenColor); return; }
     const { ws, roomId } = get();
     if (!ws || !roomId) return;
     ws.send(JSON.stringify({ type: "play_card", cardIndex, chosenColor }));
   },
 
   drawCard: () => {
+    if (get().gameMode === "solo") { get().drawMyCard(); return; }
     const { ws, roomId } = get();
     if (!ws || !roomId) return;
     ws.send(JSON.stringify({ type: "draw_card" }));
   },
 
   declareUno: () => {
+    if (get().gameMode === "solo") { get().declareMyUno(); return; }
     const { ws, roomId } = get();
     if (!ws || !roomId) return;
     ws.send(JSON.stringify({ type: "declare_uno" }));
   },
 
   catchPlayer: (targetId) => {
+    if (get().gameMode === "solo") return; // no catch in solo (single human)
     const { ws, roomId } = get();
     if (!ws || !roomId) return;
     ws.send(JSON.stringify({ type: "catch_player", targetPlayerId: targetId }));
   },
 
   passTurn: () => {
+    if (get().gameMode === "solo") { get().passMyTurn(); return; }
     const { ws, roomId } = get();
     if (!ws || !roomId) return;
     ws.send(JSON.stringify({ type: "pass_turn" }));
   },
 
   selectColor: (color) => {
+    if (get().gameMode === "solo") { get().selectMyColor(color); return; }
     const { ws, roomId, pendingCardIndex } = get();
     if (!ws || !roomId || pendingCardIndex === null) return;
     ws.send(JSON.stringify({ type: "play_card", cardIndex: pendingCardIndex, chosenColor: color }));
@@ -234,7 +254,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   startLocalGame: () => {
     const g = get();
     const settings: GameSettings = { playerCount: 1 + g.settings.botCount, botCount: g.settings.botCount, mode: g.settings.mode, turnTimer: g.settings.turnTimer };
-    const state = initGame(settings, g.username || "Player", localStorage.getItem("uno_playerAvatar") || "/assets/avatar-robot.png") as any;
+    const state = initGame(settings, g.username || "Player", localStorage.getItem("uno_playerAvatar") || "https://i.pravatar.cc/200?img=12") as any;
     const human = state.players[0];
     set({
       gameState: state, phase: "playing", gameMode: "solo", showColorPicker: false, pendingCardIndex: null,
@@ -261,7 +281,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       setTimeout(() => get().startNextRound(), 4000); return;
     }
     const h = gs.players[0]; const imt = gs.currentPlayerIndex === 0;
-    set({ myHand: h.hand, isMyTurn: imt, topCard: gs.discardPile[gs.discardPile.length - 1], activeColor: gs.activeColor, currentPlayerId: gs.players[gs.currentPlayerIndex]?.id || "", lastAction: result.action || "" });
+    set({ myHand: h.hand, isMyTurn: imt, topCard: gs.discardPile[gs.discardPile.length - 1], activeColor: gs.activeColor, currentPlayerId: gs.players[gs.currentPlayerIndex]?.id || "", lastAction: result.action || "", players: snapshotPlayers(gs) });
     if (!imt) setTimeout(() => get().executeBotTurn(), 1000);
   },
 
@@ -270,7 +290,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!gs || gs.currentPlayerIndex !== 0) return;
     handleDraw(gs, 0);
     const h = gs.players[0]; const imt = gs.currentPlayerIndex === 0;
-    set({ myHand: h.hand, isMyTurn: imt, topCard: gs.discardPile[gs.discardPile.length - 1], activeColor: gs.activeColor, lastAction: gs.lastAction });
+    set({ myHand: h.hand, isMyTurn: imt, topCard: gs.discardPile[gs.discardPile.length - 1], activeColor: gs.activeColor, lastAction: gs.lastAction, players: snapshotPlayers(gs) });
     if (!imt) setTimeout(() => get().executeBotTurn(), 1000);
   },
 
@@ -301,7 +321,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!gs) return;
     startNewRound(gs);
     const h = gs.players[0];
-    set({ phase: "playing", roundScores: null, matchWinner: null, myHand: h.hand, isMyTurn: gs.currentPlayerIndex === 0, topCard: gs.discardPile[gs.discardPile.length - 1], activeColor: gs.activeColor, lastAction: gs.lastAction, roundNumber: gs.roundNumber });
+    set({ phase: "playing", roundScores: null, matchWinner: null, myHand: h.hand, isMyTurn: gs.currentPlayerIndex === 0, topCard: gs.discardPile[gs.discardPile.length - 1], activeColor: gs.activeColor, lastAction: gs.lastAction, roundNumber: gs.roundNumber, players: snapshotPlayers(gs) });
     if (gs.currentPlayerIndex !== 0) setTimeout(() => get().executeBotTurn(), 1000);
   },
 
@@ -328,7 +348,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
     }
     const imt = gs.currentPlayerIndex === 0;
-    set({ isMyTurn: imt, topCard: gs.discardPile[gs.discardPile.length - 1], activeColor: gs.activeColor, currentPlayerId: gs.players[gs.currentPlayerIndex]?.id || "", lastAction: gs.lastAction, myHand: gs.players[0].hand });
+    set({ isMyTurn: imt, topCard: gs.discardPile[gs.discardPile.length - 1], activeColor: gs.activeColor, currentPlayerId: gs.players[gs.currentPlayerIndex]?.id || "", lastAction: gs.lastAction, myHand: gs.players[0].hand, players: snapshotPlayers(gs) });
     if (!imt) setTimeout(() => get().executeBotTurn(), 1200);
   },
 }));

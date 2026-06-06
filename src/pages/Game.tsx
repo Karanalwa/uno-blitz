@@ -5,6 +5,7 @@ import { ArrowLeftRight, LogOut, MessageSquare, RotateCcw, Volume2, VolumeX, X, 
 import { useGameStore } from "@/store/gameStore";
 import { useSound } from "@/hooks/useSound";
 import { UnoCard, ColorPicker } from "@/components/UnoCard";
+import { Confetti } from "@/components/Confetti";
 import type { CardColor } from "../../api/game/types";
 
 const SUIT_HEX: Record<string, string> = { red: "#e4322b", yellow: "#f6b500", green: "#18a558", blue: "#1e7fd6" };
@@ -59,8 +60,11 @@ export default function Game() {
   }, [store.lastAction, soundEnabled, sound]);
 
   useEffect(() => {
-    if (store.phase === "menu" || (!store.roomCode && store.phase !== "match_end")) navigate("/");
-  }, [store.phase, store.roomCode, navigate]);
+    // Solo games have no roomCode; only redirect multiplayer sessions that lost their room.
+    if (store.phase === "menu" || (store.gameMode !== "solo" && !store.roomCode && store.phase !== "match_end")) {
+      navigate("/");
+    }
+  }, [store.phase, store.roomCode, store.gameMode, navigate]);
 
   const handlePlayCard = useCallback((cardIndex: number) => {
     const card = store.myHand[cardIndex];
@@ -168,7 +172,13 @@ export default function Game() {
         <div className="relative">
           <AnimatePresence mode="popLayout">
             {store.topCard && (
-              <motion.div key={store.topCard.id} initial={{ scale: 0.4, rotate: 14, y: -30 }} animate={{ scale: 1, rotate: 0, y: 0 }} exit={{ opacity: 0 }} transition={{ type: "spring", stiffness: 320, damping: 18 }}>
+              <motion.div
+                key={store.topCard.id}
+                initial={{ scale: 0.5, rotate: -24, y: 130, opacity: 0 }}
+                animate={{ scale: [0.5, 1.14, 1], rotate: [-24, 7, 0], y: [130, -10, 0], opacity: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.42, times: [0, 0.68, 1], ease: "easeOut" }}
+              >
                 <UnoCard card={store.topCard} size="lg" active />
               </motion.div>
             )}
@@ -237,7 +247,7 @@ export default function Game() {
       {/* ===== My hand ===== */}
       <div className="flex-shrink-0 px-2 pb-3 pt-1">
         <div className="flex items-center justify-center gap-2 mb-1.5">
-          <div className="chip-frame w-7 h-7"><img src={me?.avatar || "/assets/avatar-robot.png"} alt="" className="w-full h-full rounded-full object-cover" /></div>
+          <div className="chip-frame w-7 h-7"><img src={me?.avatar || "https://i.pravatar.cc/200?img=12"} alt="" className="w-full h-full rounded-full object-cover" /></div>
           <span className="text-xs font-bold">{me?.username}</span>
           <span className="text-[10px] text-gray-500">· {store.myHand.length} cards</span>
         </div>
@@ -248,9 +258,9 @@ export default function Game() {
               return (
                 <motion.div
                   key={card.id}
-                  initial={{ y: 30, opacity: 0 }}
-                  animate={{ y: playable ? -6 : 0, opacity: 1 }}
-                  transition={{ delay: index * 0.03, type: "spring", stiffness: 260 }}
+                  initial={{ y: 90, x: -140, opacity: 0, rotate: -14, scale: 0.8 }}
+                  animate={{ y: playable ? -6 : 0, x: 0, opacity: 1, rotate: 0, scale: 1 }}
+                  transition={{ delay: index * 0.045, type: "spring", stiffness: 240, damping: 20 }}
                   className="flex-shrink-0 relative z-0 hover:z-10"
                   style={{ marginLeft: `-${Math.min(store.myHand.length * 5, 38)}px` }}
                 >
@@ -288,6 +298,8 @@ export default function Game() {
       {/* ===== Round End ===== */}
       <AnimatePresence>
         {store.phase === "round_end" && store.roundScores && (
+          <>
+          {store.roundScores.find((s) => s.roundWinner)?.username === me?.username && <Confetti count={60} />}
           <Overlay>
             <h2 className="font-display text-2xl font-extrabold text-center text-gold glow-gold-text mb-1">Round Over!</h2>
             <p className="text-center text-[#d1c5b0] text-xs mb-3">{store.roundScores.find((s) => s.roundWinner)?.username} wins the round</p>
@@ -301,12 +313,15 @@ export default function Game() {
             </div>
             <p className="text-center text-gray-500 text-xs animate-pulse">Next round starting…</p>
           </Overlay>
+          </>
         )}
       </AnimatePresence>
 
       {/* ===== Match End ===== */}
       <AnimatePresence>
         {store.phase === "match_end" && store.finalScores && (
+          <>
+          <Confetti loop count={120} />
           <Overlay gold>
             <motion.img src="/assets/trophy.png" alt="Trophy" className="w-20 h-20 mx-auto mb-2" animate={{ rotate: [0, -8, 8, 0], y: [0, -6, 0] }} transition={{ duration: 2, repeat: Infinity }} />
             <h2 className="font-display text-2xl font-extrabold text-gold glow-gold-text text-center mb-3">{store.matchWinner} Wins!</h2>
@@ -323,6 +338,7 @@ export default function Game() {
               <button onClick={handleLeave} className="btn-3d btn-ghost flex-1 py-3 text-sm">Menu</button>
             </div>
           </Overlay>
+          </>
         )}
       </AnimatePresence>
     </div>

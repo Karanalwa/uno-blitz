@@ -41,7 +41,7 @@ export default function Lobby() {
         </div>
         <div className="glass-bright rounded-xl p-3 flex items-center gap-3">
           <div className="chip-frame chip-frame-gold w-11 h-11">
-            <img src={me?.avatar || "/assets/avatar-robot.png"} alt="" className="w-full h-full rounded-full object-cover" />
+            <img src={me?.avatar || "https://i.pravatar.cc/200?img=12"} alt="" className="w-full h-full rounded-full object-cover" />
           </div>
           <div className="min-w-0">
             <p className="font-display font-bold text-sm truncate">{me?.username || store.username || "Player"}</p>
