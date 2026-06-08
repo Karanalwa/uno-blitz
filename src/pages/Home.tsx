@@ -9,7 +9,7 @@ import { useGameStore } from "@/store/gameStore";
 import { useSound } from "@/hooks/useSound";
 import { useMultiplayer } from "@/hooks/useMultiplayer";
 import { AVATARS } from "@/engine/types";
-import { useWallet } from "@/lib/wallet";
+import { useWallet, levelInfo } from "@/lib/wallet";
 import { useSettings } from "@/lib/settings";
 
 const NAV = [
@@ -96,7 +96,7 @@ export default function Home() {
           </div>
           <div className="text-left leading-tight">
             <p className="font-display font-extrabold text-sm">{username || "AlexGamer"}</p>
-            <span className="inline-flex items-center gap-1 currency-pill text-[10px] text-gold px-1.5 py-0.5">👑 Lv. 28</span>
+            <span className="inline-flex items-center gap-1 currency-pill text-[10px] text-gold px-1.5 py-0.5">👑 Lv. {levelInfo(wallet.xp).level}</span>
           </div>
         </button>
 

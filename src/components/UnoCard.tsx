@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import type { CSSProperties } from "react";
 import type { Card } from "../../api/game/types";
 
 interface UnoCardProps {
@@ -11,10 +12,11 @@ interface UnoCardProps {
   className?: string;
 }
 
+// w = Tailwind width class, cw = the matching pixel width that drives proportional scaling
 const sizeMap = {
-  sm: { w: "w-16", h: "h-24", corner: "text-[9px]", disc: "text-2xl" },
-  md: { w: "w-20", h: "h-28", corner: "text-[11px]", disc: "text-3xl" },
-  lg: { w: "w-28", h: "h-40", corner: "text-sm", disc: "text-5xl" },
+  sm: { w: "w-16", h: "h-24", cw: "64px" },
+  md: { w: "w-20", h: "h-28", cw: "80px" },
+  lg: { w: "w-28", h: "h-40", cw: "112px" },
 };
 
 function centerGlyph(card: Card): string {
@@ -36,32 +38,20 @@ function cornerGlyph(card: Card): string {
 
 export function UnoCard({ card, size = "md", playable = false, faceDown = false, active = false, onClick, className = "" }: UnoCardProps) {
   const s = sizeMap[size];
+  const cwStyle = { "--cw": s.cw } as CSSProperties;
 
   if (faceDown) {
     return (
       <motion.div
         whileHover={onClick ? { y: -5, scale: 1.05 } : {}}
         className={`uno-shell ${s.w} ${s.h} ${onClick ? "cursor-pointer" : ""} ${className}`}
+        style={cwStyle}
         onClick={onClick}
       >
         <div className="uno-inner" style={{ background: "linear-gradient(160deg,#222 0%,#000 100%)" }}>
-          {/* red diagonal oval */}
-          <div
-            className="absolute left-1/2 top-1/2"
-            style={{ width: "128%", height: "50%", transform: "translate(-50%,-50%) rotate(-26deg)", borderRadius: "9999px", background: "linear-gradient(160deg,#ea271f,#b3120f)", boxShadow: "inset 0 2px 6px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.35)" }}
-          />
-          {/* gold italic UNO wordmark */}
+          <div className="absolute left-1/2 top-1/2" style={{ width: "75%", height: "85%", transform: "translate(-50%,-50%) rotate(40deg)", borderRadius: "50%", border: "calc(var(--cw)*0.05) solid #fff", background: "radial-gradient(circle at 50% 42%,#ff3b33,#c40d0d)", boxShadow: "inset 0 2px 6px rgba(0,0,0,0.4)" }} />
           <div className="absolute inset-0 flex items-center justify-center">
-            <span
-              style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif", fontStyle: "italic", fontWeight: 900,
-                color: "#ffce3a", WebkitTextStroke: "0.05em rgba(0,0,0,0.55)", paintOrder: "stroke fill",
-                transform: "rotate(-8deg)", textShadow: "0 2px 2px rgba(0,0,0,0.45)",
-                fontSize: size === "lg" ? "1.5rem" : size === "md" ? "1.1rem" : "0.92rem",
-              }}
-            >
-              UNO
-            </span>
+            <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontStyle: "italic", fontWeight: 900, color: "#ffce3a", WebkitTextStrokeWidth: "calc(var(--cw)*0.018)", WebkitTextStrokeColor: "rgba(0,0,0,0.6)", paintOrder: "stroke fill", transform: "rotate(-20deg)", textShadow: "0 2px 2px rgba(0,0,0,0.45)", fontSize: "calc(var(--cw)*0.26)" }}>UNO</span>
           </div>
         </div>
       </motion.div>
@@ -75,26 +65,29 @@ export function UnoCard({ card, size = "md", playable = false, faceDown = false,
 
   return (
     <motion.div
-      whileHover={onClick ? { y: -14, scale: 1.08, zIndex: 50 } : { y: -4 }}
-      whileTap={onClick ? { scale: 0.95 } : {}}
+      whileHover={onClick ? { y: -8, scale: 1.06, rotateX: 8, rotateY: 5, zIndex: 50 } : { y: -4 }}
+      whileTap={onClick ? { scale: 0.95, rotateX: 0, rotateY: 0 } : {}}
       transition={{ type: "spring", stiffness: 320, damping: 22 }}
+      style={{ ...cwStyle, transformPerspective: 800 }}
       className={`uno-shell ${s.w} ${s.h} ${onClick ? "cursor-pointer" : ""} ${active ? "card-active-glow" : playable ? "card-playable-glow" : ""} ${className}`}
       onClick={onClick}
     >
       <div className={`uno-inner suit-${suit}`}>
-        {/* white corner index, tucked into opposite corners (diagonal) */}
-        <span className={`uno-corner ${s.corner} absolute top-0.5 left-1 leading-none`}>{corner}</span>
-        <span className={`uno-corner ${s.corner} absolute bottom-0.5 right-1 rotate-180 leading-none`}>{corner}</span>
+        {/* corner indices (top-left, bottom-right) */}
+        <span className="uno-corner" style={{ top: "calc(var(--cw)*0.06)", left: "calc(var(--cw)*0.08)" }}>{corner}</span>
+        <span className="uno-corner rotate-180" style={{ bottom: "calc(var(--cw)*0.06)", right: "calc(var(--cw)*0.08)" }}>{corner}</span>
 
-        {/* diagonal oval + big numeral */}
+        {/* large rotated oval */}
         <div
           className="uno-oval"
-          style={isWild ? { background: "conic-gradient(#e74c3c 0deg 90deg,#f1c40f 90deg 180deg,#2ecc71 180deg 270deg,#3498db 270deg 360deg)" } : undefined}
+          style={isWild ? { background: "conic-gradient(#ff0000 0deg 90deg,#ffcc00 90deg 180deg,#00aa44 180deg 270deg,#0066ff 270deg 360deg)" } : undefined}
         />
+
+        {/* huge centre numeral */}
         <div className="absolute inset-0 flex items-center justify-center">
           <span
-            className={`uno-glyph ${s.disc} ${isWild ? "text-white" : `glyph-${suit}`}`}
-            style={isWild ? { textShadow: "0 2px 4px rgba(0,0,0,0.65)" } : undefined}
+            className={`uno-glyph ${isWild ? "text-white" : `glyph-${suit}`}`}
+            style={center.length > 1 ? { fontSize: "calc(var(--cw)*0.42)" } : undefined}
           >
             {center}
           </span>

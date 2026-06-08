@@ -17,7 +17,9 @@ export default function Splash() {
 
   useEffect(() => {
     const iv = setInterval(() => setPct((p) => Math.min(100, p + Math.random() * 14 + 4)), 180);
-    const to = setTimeout(() => navigate("/home", { replace: true }), 2600);
+    // First-time visitors set up their name/avatar; returning players (saved session) skip it.
+    const hasSession = !!localStorage.getItem("uno_username");
+    const to = setTimeout(() => navigate(hasSession ? "/home" : "/welcome", { replace: true }), 2600);
     return () => { clearInterval(iv); clearTimeout(to); };
   }, [navigate]);
 
@@ -32,7 +34,7 @@ export default function Splash() {
           initial={{ opacity: 0, scale: 0.6 }}
           animate={{ opacity: 1, scale: 1, y: [0, -16, 0], rotate: c.rot }}
           transition={{ opacity: { delay: c.d }, scale: { delay: c.d }, y: { duration: 3 + i * 0.3, repeat: Infinity }, rotate: { delay: c.d } }}>
-          <div className="uno-shell w-16 h-24 sm:w-20 sm:h-28">
+          <div className="uno-shell w-16 h-24 sm:w-20 sm:h-28" style={{ ["--cw" as string]: "76px" }}>
             <div className={`uno-inner ${c.cls}`}><div className="uno-oval" /><div className="absolute inset-0 flex items-center justify-center"><span className={`uno-glyph text-2xl ${c.glyph}`}>{c.label}</span></div></div>
           </div>
         </motion.div>

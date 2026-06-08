@@ -208,53 +208,74 @@
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
-/* ---------- UNO card (classic diagonal-oval style) ---------- */
+/* ---------- UNO card (spec-driven, scales via --cw card width) ---------- */
 .uno-shell {
+  --cw: 80px;
   position: relative;
-  border-radius: 0.75rem;
-  border: 3px solid #fff;
+  border-radius: calc(var(--cw) * 0.1);
+  border: calc(var(--cw) * 0.05) solid #fff;
   overflow: hidden;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.8), 0 12px 30px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.4);
 }
-.uno-inner { position: absolute; inset: 0; border-radius: 0.55rem; overflow: hidden; }
-/* iconic diagonal oval — a WHITE OUTLINE ellipse (card colour shows through) */
+.uno-inner { position: absolute; inset: 0; border-radius: calc(var(--cw) * 0.06); overflow: hidden; }
+/* faint sunburst behind the number */
+.uno-inner::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: repeating-conic-gradient(from 0deg at 50% 47%, rgba(0, 0, 0, 0.05) 0deg 2deg, transparent 2deg 7deg);
+}
+/* top gloss overlay */
+.uno-inner::after {
+  content: "";
+  position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 42%);
+}
+/* large rotated oval, filled with a darker shade of the card colour */
 .uno-oval {
   position: absolute; left: 50%; top: 50%;
-  width: 104%; height: 62%;
-  transform: translate(-50%, -50%) rotate(-25deg);
+  width: 75%; height: 85%;
+  transform: translate(-50%, -50%) rotate(40deg);
   border-radius: 50%;
-  background: transparent;
-  border: 3px solid rgba(255, 255, 255, 0.95);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  border: calc(var(--cw) * 0.05) solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 3px rgba(0, 0, 0, 0.18);
   z-index: 1;
 }
-.suit-red    { background: linear-gradient(160deg, #f0584a, #e74c3c 55%, #c0392b 100%); }
-.suit-blue   { background: linear-gradient(160deg, #4aa8e8, #3498db 55%, #2471a3 100%); }
-.suit-green  { background: linear-gradient(160deg, #4cd98a, #2ecc71 55%, #229954 100%); }
-.suit-yellow { background: linear-gradient(160deg, #f7d52e, #f1c40f 55%, #d4ac0d 100%); }
-.suit-wild   { background: linear-gradient(160deg, #2a2a2a, #141414 55%, #000000 100%); }
+/* card base colours (subtle radial, lighter centre) */
+.suit-red    { background: radial-gradient(circle at 50% 42%, #ff4d4d, #ff0000 72%); }
+.suit-blue   { background: radial-gradient(circle at 50% 42%, #3d8bff, #0066ff 72%); }
+.suit-green  { background: radial-gradient(circle at 50% 42%, #2ec16e, #00aa44 72%); }
+.suit-yellow { background: radial-gradient(circle at 50% 42%, #ffe066, #ffcc00 72%); }
+.suit-wild   { background: radial-gradient(circle at 50% 42%, #2a2a2a, #050505 72%); }
+/* oval fill = darker shade per colour */
+.suit-red .uno-oval    { background: #e00000; }
+.suit-blue .uno-oval   { background: #0052cc; }
+.suit-green .uno-oval  { background: #008836; }
+.suit-yellow .uno-oval { background: #e0b400; }
 
-/* center numerals are all white (outline gives contrast on any colour) */
 .glyph-red, .glyph-blue, .glyph-green, .glyph-yellow, .glyph-wild { color: #fff; }
 
-/* big white numeral with a black outline (paint-order keeps the fill on top) */
+/* huge white numeral with thick black outline */
 .uno-glyph {
   position: relative; z-index: 2;
   font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 900; line-height: 1;
   letter-spacing: -0.02em;
+  font-size: calc(var(--cw) * 0.66);
   color: #fff;
-  -webkit-text-stroke: 0.09em rgba(0, 0, 0, 0.85);
+  -webkit-text-stroke-width: calc(var(--cw) * 0.03);
+  -webkit-text-stroke-color: #000;
   paint-order: stroke fill;
-  text-shadow: 0 0.06em 0.06em rgba(0, 0, 0, 0.4);
+  text-shadow: 0 calc(var(--cw) * 0.05) calc(var(--cw) * 0.09) rgba(0, 0, 0, 0.35);
 }
-/* corner index — small, tucked in the corner, white with a thin dark outline */
+/* corner index — ~16% of card width, white with black outline */
 .uno-corner {
-  position: relative; z-index: 3;
+  position: absolute; z-index: 4;
   font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 900; line-height: 1;
+  font-size: calc(var(--cw) * 0.16);
   color: #fff;
-  -webkit-text-stroke: 0.04em rgba(0, 0, 0, 0.6);
+  -webkit-text-stroke-width: calc(var(--cw) * 0.012);
+  -webkit-text-stroke-color: #000;
   paint-order: stroke fill;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
 /* card glow states */

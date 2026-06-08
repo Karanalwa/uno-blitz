@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router";
 import Splash from "./pages/Splash";
+import Welcome from "./pages/Welcome";
 import Home from "./pages/Home";
 import CreateRoom from "./pages/CreateRoom";
 import JoinRoom from "./pages/JoinRoom";
@@ -19,6 +20,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Splash />} />
+      <Route path="/welcome" element={<Welcome />} />
       <Route path="/home" element={<Home />} />
       <Route path="/create" element={<CreateRoom />} />
       <Route path="/join" element={<JoinRoom />} />

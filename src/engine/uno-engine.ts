@@ -260,11 +260,19 @@ function resolveRoundEnd(state: GameState, winnerId: string): { winnerId: string
   const winner = state.players.find((p) => p.id === winnerId)!;
   let totalPoints = 0;
 
-  const scores: RoundScore[] = state.players.map((p) => {
-    const pts = calcHandScore(p.hand);
-    if (p.id !== winnerId) totalPoints += pts;
-    return { playerId: p.id, username: p.username, cardsRemaining: p.cardCount, points: p.id === winnerId ? 0 : pts, roundWinner: p.id === winnerId };
-  });
+  // Each opponent's remaining hand value is added to the winner's score.
+  for (const p of state.players) {
+    if (p.id !== winnerId) totalPoints += calcHandScore(p.hand);
+  }
+
+  // Display: the winner shows the points they GAINED this round; others show 0.
+  const scores: RoundScore[] = state.players.map((p) => ({
+    playerId: p.id,
+    username: p.username,
+    cardsRemaining: p.cardCount,
+    points: p.id === winnerId ? totalPoints : 0,
+    roundWinner: p.id === winnerId,
+  }));
 
   winner.score += totalPoints;
 

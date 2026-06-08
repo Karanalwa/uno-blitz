@@ -6,7 +6,7 @@ import { useGameStore } from "@/store/gameStore";
 import { useSound } from "@/hooks/useSound";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { recordMatch, recordUnoCall, recordDrawFour, recordMatchHistory } from "@/lib/playerStats";
-import { addCoins } from "@/lib/wallet";
+import { addCoins, addXp } from "@/lib/wallet";
 import { useSettings, vibrate } from "@/lib/settings";
 import { UnoCard, ColorPicker } from "@/components/UnoCard";
 import type { CardColor } from "../../api/game/types";
@@ -108,6 +108,7 @@ export default function Game() {
         const opponents = store.players.filter((p) => p.id !== store.playerId).map((p) => p.username).join(", ");
         recordMatchHistory({ result: won ? "WIN" : "LOSE", players: opponents || "Bots", count: store.players.length, at: Date.now() });
         addCoins(won ? 500 : 50);
+        addXp(won ? 120 : 40);
       }
     } else {
       recordedRef.current = false;
