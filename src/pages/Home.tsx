@@ -88,19 +88,19 @@ export default function Home() {
       </>)}
 
       {/* ===== Top bar ===== */}
-      <header className="relative z-20 flex items-center justify-between px-3 pt-3 pb-1 gap-2">
-        <button onClick={() => navigate("/profile")} className="flex items-center gap-2 flex-shrink-0">
-          <div className="relative frame-ring w-12 h-12 rounded-full" style={{ borderRadius: "9999px" }}>
+      <header className="relative z-20 flex items-center justify-between px-2.5 sm:px-3 pt-3 pb-1 gap-2">
+        <button onClick={() => navigate("/profile")} className="flex items-center gap-2 min-w-0">
+          <div className="relative frame-ring w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0" style={{ borderRadius: "9999px" }}>
             <img src={avatar} alt="" className="w-full h-full rounded-full object-cover" />
             <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#3a0000]" />
           </div>
-          <div className="text-left leading-tight">
-            <p className="font-display font-extrabold text-sm">{username || "AlexGamer"}</p>
+          <div className="text-left leading-tight min-w-0">
+            <p className="font-display font-extrabold text-sm truncate max-w-[88px] sm:max-w-none">{username || "AlexGamer"}</p>
             <span className="inline-flex items-center gap-1 currency-pill text-[10px] text-gold px-1.5 py-0.5">👑 Lv. {levelInfo(wallet.xp).level}</span>
           </div>
         </button>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           <span className="currency-pill text-xs text-gold gap-1"><Coins className="w-3.5 h-3.5" /> {wallet.coins.toLocaleString()} <Plus className="w-3 h-3 text-gold" /></span>
           <span className="currency-pill text-xs text-sky-300 gap-1 hidden sm:inline-flex"><Gem className="w-3.5 h-3.5" /> {wallet.gems.toLocaleString()} <Plus className="w-3 h-3 text-gold" /></span>
           <button onClick={() => navigate("/rewards")} className="relative p-2 rounded-full bg-black/45 border border-white/10 text-gray-200 hover:text-white">
@@ -111,54 +111,54 @@ export default function Home() {
       </header>
 
       {/* ===== Body: sidebar + content ===== */}
-      <div className="relative z-10 flex flex-1">
+      <div className="relative z-10 flex flex-1 min-h-0">
         {/* left rail */}
-        <nav className="flex-shrink-0 w-[68px] sm:w-[76px] py-2 flex flex-col items-stretch gap-1 bg-black/40 rounded-r-2xl border-r border-white/5">
+        <nav className="flex-shrink-0 w-[52px] sm:w-[76px] py-2 flex flex-col items-stretch gap-0.5 sm:gap-1 bg-black/40 rounded-r-2xl border-r border-white/5 overflow-y-auto">
           {NAV.map(({ icon: Icon, label, to, selected, disabled }) => (
             <button key={label} onClick={() => navTo(to, disabled)}
-              className={`flex flex-col items-center gap-1 py-2 mx-1.5 rounded-xl transition ${selected ? "bg-gold/10 text-gold border border-gold/50 shadow-[0_0_14px_rgba(245,166,35,0.35)]" : disabled ? "text-gray-500" : "text-gray-300 hover:text-white hover:bg-white/5"}`}>
-              <Icon className="w-5 h-5" />
-              <span className="text-[8px] font-bold tracking-wide">{label}</span>
+              className={`flex flex-col items-center gap-0.5 sm:gap-1 py-1.5 sm:py-2 mx-1 sm:mx-1.5 rounded-xl transition ${selected ? "bg-gold/10 text-gold border border-gold/50 shadow-[0_0_14px_rgba(245,166,35,0.35)]" : disabled ? "text-gray-500" : "text-gray-300 hover:text-white hover:bg-white/5"}`}>
+              <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="text-[6px] sm:text-[8px] font-bold tracking-wide leading-none">{label}</span>
             </button>
           ))}
         </nav>
 
         {/* content area */}
-        <div className="relative flex-1 flex flex-col px-3 pb-5">
+        <div className="relative flex-1 flex flex-col min-w-0 px-2 sm:px-3 pb-4">
           {/* right widgets */}
-          <div className="absolute top-2 right-2 w-[120px] sm:w-[138px] flex flex-col gap-3 z-20">
-            <div className="glass rounded-2xl p-2.5 text-center">
-              <p className="text-[10px] font-extrabold tracking-wide text-gold mb-1">DAILY REWARD</p>
-              <motion.div animate={{ y: [0, -4, 0] }} transition={{ duration: 2, repeat: Infinity }} className="text-4xl mb-1" style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.5))" }}>🎁</motion.div>
-              <button onClick={() => navigate("/rewards")} className="currency-pill text-[11px] text-gold w-full justify-center"><Clock className="w-3 h-3" /> 23h 45m</button>
+          <div className="absolute top-1.5 right-1.5 w-[86px] sm:w-[138px] flex flex-col gap-2 sm:gap-3 z-20">
+            <div className="glass rounded-2xl p-2 sm:p-2.5 text-center">
+              <p className="text-[8px] sm:text-[10px] font-extrabold tracking-wide text-gold mb-0.5 sm:mb-1 leading-none">DAILY REWARD</p>
+              <motion.div animate={{ y: [0, -4, 0] }} transition={{ duration: 2, repeat: Infinity }} className="text-3xl sm:text-4xl mb-0.5 sm:mb-1" style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.5))" }}>🎁</motion.div>
+              <button onClick={() => navigate("/rewards")} className="currency-pill text-[9px] sm:text-[11px] text-gold w-full justify-center"><Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> 23h 45m</button>
             </div>
-            <div className="glass rounded-2xl p-2.5 text-center">
-              <p className="text-[10px] font-extrabold tracking-wide text-gold mb-1">SEASON PASS</p>
-              <div className="text-4xl mb-1" style={{ filter: "drop-shadow(0 0 8px rgba(155,89,182,0.7))" }}>🛡️</div>
-              <div className="panel-inset rounded-full h-3.5 overflow-hidden relative">
+            <div className="glass rounded-2xl p-2 sm:p-2.5 text-center">
+              <p className="text-[8px] sm:text-[10px] font-extrabold tracking-wide text-gold mb-0.5 sm:mb-1 leading-none">SEASON PASS</p>
+              <div className="text-3xl sm:text-4xl mb-0.5 sm:mb-1" style={{ filter: "drop-shadow(0 0 8px rgba(155,89,182,0.7))" }}>🛡️</div>
+              <div className="panel-inset rounded-full h-3 sm:h-3.5 overflow-hidden relative">
                 <div className="h-full rounded-full" style={{ width: "60%", background: "linear-gradient(90deg,#ffd255,#f0a818)" }} />
-                <span className="absolute inset-0 flex items-center justify-center text-[9px] font-extrabold text-[#3a2600]">120 / 200</span>
+                <span className="absolute inset-0 flex items-center justify-center text-[8px] sm:text-[9px] font-extrabold text-[#3a2600]">120 / 200</span>
               </div>
             </div>
           </div>
 
-          {/* logo */}
-          <div className="flex-1 flex items-center justify-center min-h-[34vh]">
+          {/* logo — reserves right space so it never overlaps the widgets */}
+          <div className="flex-1 flex items-center justify-center min-h-0 pr-[72px] sm:pr-[150px]">
             <UnoLogo />
           </div>
 
           {/* buttons */}
-          <div className="flex flex-col items-center gap-3 w-full max-w-sm mx-auto pr-1">
+          <div className="flex flex-col items-center gap-2.5 w-full max-w-sm mx-auto">
             <motion.button whileTap={{ scale: 0.97 }} onClick={() => { ensureName(); setModal("solo"); sound.playButton(); }}
-              className="btn-3d btn-gold w-full h-[58px] flex items-center justify-center gap-2 text-2xl font-extrabold tracking-wide animate-glow-pulse">
+              className="btn-3d btn-gold w-full h-[52px] sm:h-[58px] flex items-center justify-center gap-2 text-xl sm:text-2xl font-extrabold tracking-wide animate-glow-pulse">
               PLAY NOW
             </motion.button>
-            <div className="flex gap-3 w-full">
-              <button onClick={() => { if (!connected) return; ensureName(); sound.playButton(); navigate("/create"); }} disabled={!connected} className="btn-3d btn-purple flex-1 h-[58px] flex flex-col items-center justify-center gap-0.5">
-                <span className="text-sm font-extrabold tracking-wide">CREATE ROOM</span><Users className="w-4 h-4" />
+            <div className="flex gap-2.5 w-full">
+              <button onClick={() => { if (!connected) return; ensureName(); sound.playButton(); navigate("/create"); }} disabled={!connected} className="btn-3d btn-purple flex-1 h-[52px] sm:h-[58px] flex flex-col items-center justify-center gap-0.5">
+                <span className="text-xs sm:text-sm font-extrabold tracking-wide">CREATE ROOM</span><Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
-              <button onClick={() => { if (!connected) return; ensureName(); sound.playButton(); navigate("/join"); }} disabled={!connected} className="btn-3d btn-green flex-1 h-[58px] flex flex-col items-center justify-center gap-0.5">
-                <span className="text-sm font-extrabold tracking-wide">JOIN ROOM</span><UserPlus className="w-4 h-4" />
+              <button onClick={() => { if (!connected) return; ensureName(); sound.playButton(); navigate("/join"); }} disabled={!connected} className="btn-3d btn-green flex-1 h-[52px] sm:h-[58px] flex flex-col items-center justify-center gap-0.5">
+                <span className="text-xs sm:text-sm font-extrabold tracking-wide">JOIN ROOM</span><UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             </div>
           </div>
@@ -215,10 +215,10 @@ export default function Home() {
 /* ---- the UNO logo (red ellipse + glow + wordmark) ---- */
 function UnoLogo() {
   return (
-    <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }} className="relative" style={{ width: "min(64vw, 250px)", aspectRatio: "1.45 / 1" }}>
+    <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }} className="relative" style={{ width: "min(50vw, 240px)", aspectRatio: "1.45 / 1" }}>
       <div className="absolute inset-0 rounded-[50%]" style={{ background: "radial-gradient(circle at 50% 38%, #ff3b30, #d40e08 70%, #a60a05 100%)", boxShadow: "0 0 0 7px #fff, 0 0 50px 12px rgba(255,90,60,0.75), 0 12px 34px rgba(0,0,0,0.55)" }} />
       <div className="absolute inset-0 flex items-center justify-center">
-        <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontStyle: "italic", fontWeight: 900, fontSize: "min(17vw, 66px)", color: "#ffce1f", WebkitTextStrokeWidth: "min(1.2vw, 4px)", WebkitTextStrokeColor: "#1a1a1a", paintOrder: "stroke fill", transform: "rotate(-4deg)", textShadow: "0 4px 6px rgba(0,0,0,0.4)", letterSpacing: "-0.02em" }}>UNO</span>
+        <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontStyle: "italic", fontWeight: 900, fontSize: "min(13vw, 62px)", color: "#ffce1f", WebkitTextStrokeWidth: "min(1vw, 4px)", WebkitTextStrokeColor: "#1a1a1a", paintOrder: "stroke fill", transform: "rotate(-4deg)", textShadow: "0 4px 6px rgba(0,0,0,0.4)", letterSpacing: "-0.02em" }}>UNO</span>
       </div>
       <span className="absolute top-1 right-2 text-white text-[10px] font-bold">™</span>
     </motion.div>
