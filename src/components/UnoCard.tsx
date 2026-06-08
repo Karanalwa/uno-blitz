@@ -41,13 +41,28 @@ export function UnoCard({ card, size = "md", playable = false, faceDown = false,
     return (
       <motion.div
         whileHover={onClick ? { y: -5, scale: 1.05 } : {}}
-        className={`${s.w} ${s.h} rounded-xl relative overflow-hidden ${onClick ? "cursor-pointer" : ""} ${className}`}
-        style={{ background: "linear-gradient(135deg,#1a1a2e 0%,#0f0f1a 100%)", border: "2px solid rgba(245,166,35,0.3)", boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}
+        className={`uno-shell ${s.w} ${s.h} ${onClick ? "cursor-pointer" : ""} ${className}`}
         onClick={onClick}
       >
-        <div className="absolute inset-2 rounded-lg" style={{ border: "2px solid rgba(245,166,35,0.5)" }} />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="font-display font-black -rotate-[15deg]" style={{ color: "rgba(245,166,35,0.65)", fontSize: size === "lg" ? "1.4rem" : "1rem" }}>UNO</span>
+        <div className="uno-inner" style={{ background: "linear-gradient(160deg,#222 0%,#000 100%)" }}>
+          {/* red diagonal oval */}
+          <div
+            className="absolute left-1/2 top-1/2"
+            style={{ width: "128%", height: "50%", transform: "translate(-50%,-50%) rotate(-26deg)", borderRadius: "9999px", background: "linear-gradient(160deg,#ea271f,#b3120f)", boxShadow: "inset 0 2px 6px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.35)" }}
+          />
+          {/* gold italic UNO wordmark */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif", fontStyle: "italic", fontWeight: 900,
+                color: "#ffce3a", WebkitTextStroke: "0.05em rgba(0,0,0,0.55)", paintOrder: "stroke fill",
+                transform: "rotate(-8deg)", textShadow: "0 2px 2px rgba(0,0,0,0.45)",
+                fontSize: size === "lg" ? "1.5rem" : size === "md" ? "1.1rem" : "0.92rem",
+              }}
+            >
+              UNO
+            </span>
+          </div>
         </div>
       </motion.div>
     );

@@ -49,10 +49,12 @@ function MiniFan({ count }: { count: number }) {
 // Styled red UNO card back
 function CardBack({ className = "" }: { className?: string }) {
   return (
-    <div className={`rounded-xl relative overflow-hidden ${className}`} style={{ background: "linear-gradient(135deg,#1a1a2e,#0f0f1a)", border: "2px solid rgba(245,166,35,0.3)", boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
-      <div className="absolute inset-2 rounded-lg" style={{ border: "2px solid rgba(245,166,35,0.5)" }} />
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className="font-display font-black -rotate-[15deg]" style={{ color: "rgba(245,166,35,0.65)" }}>UNO</span>
+    <div className={`uno-shell ${className}`}>
+      <div className="uno-inner" style={{ background: "linear-gradient(160deg,#222,#000)" }}>
+        <div className="absolute left-1/2 top-1/2" style={{ width: "128%", height: "50%", transform: "translate(-50%,-50%) rotate(-26deg)", borderRadius: "9999px", background: "linear-gradient(160deg,#ea271f,#b3120f)", boxShadow: "inset 0 2px 6px rgba(0,0,0,0.45)" }} />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontStyle: "italic", fontWeight: 900, color: "#ffce3a", WebkitTextStroke: "0.05em rgba(0,0,0,0.55)", paintOrder: "stroke fill", transform: "rotate(-8deg)", fontSize: "0.95rem", textShadow: "0 2px 2px rgba(0,0,0,0.4)" }}>UNO</span>
+        </div>
       </div>
     </div>
   );
