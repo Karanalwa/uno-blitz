@@ -12,9 +12,9 @@ interface UnoCardProps {
 }
 
 const sizeMap = {
-  sm: { w: "w-16", h: "h-24", corner: "text-[11px]", disc: "text-2xl" },
-  md: { w: "w-20", h: "h-28", corner: "text-sm", disc: "text-3xl" },
-  lg: { w: "w-28", h: "h-40", corner: "text-lg", disc: "text-5xl" },
+  sm: { w: "w-16", h: "h-24", corner: "text-[9px]", disc: "text-2xl" },
+  md: { w: "w-20", h: "h-28", corner: "text-[11px]", disc: "text-3xl" },
+  lg: { w: "w-28", h: "h-40", corner: "text-sm", disc: "text-5xl" },
 };
 
 function centerGlyph(card: Card): string {
@@ -82,9 +82,9 @@ export function UnoCard({ card, size = "md", playable = false, faceDown = false,
       onClick={onClick}
     >
       <div className={`uno-inner suit-${suit}`}>
-        {/* white corner index (always white for readability) */}
-        <span className={`uno-corner ${s.corner} absolute top-1 left-1.5`}>{corner}</span>
-        <span className={`uno-corner ${s.corner} absolute bottom-1 right-1.5 rotate-180`}>{corner}</span>
+        {/* white corner index, tucked into opposite corners (diagonal) */}
+        <span className={`uno-corner ${s.corner} absolute top-0.5 left-1 leading-none`}>{corner}</span>
+        <span className={`uno-corner ${s.corner} absolute bottom-0.5 right-1 rotate-180 leading-none`}>{corner}</span>
 
         {/* diagonal oval + big numeral */}
         <div

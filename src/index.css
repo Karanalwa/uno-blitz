@@ -217,15 +217,15 @@
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 .uno-inner { position: absolute; inset: 0; border-radius: 0.55rem; overflow: hidden; }
-/* iconic diagonal oval — a WHITE OUTLINE ring (card colour shows through) */
+/* iconic diagonal oval — a WHITE OUTLINE ellipse (card colour shows through) */
 .uno-oval {
   position: absolute; left: 50%; top: 50%;
-  width: 130%; height: 50%;
-  transform: translate(-50%, -50%) rotate(-26deg);
-  border-radius: 9999px;
+  width: 104%; height: 62%;
+  transform: translate(-50%, -50%) rotate(-25deg);
+  border-radius: 50%;
   background: transparent;
-  border: 0.18em solid rgba(255, 255, 255, 0.95);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(0, 0, 0, 0.12);
+  border: 3px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   z-index: 1;
 }
 .suit-red    { background: linear-gradient(160deg, #f0584a, #e74c3c 55%, #c0392b 100%); }
@@ -247,14 +247,14 @@
   paint-order: stroke fill;
   text-shadow: 0 0.06em 0.06em rgba(0, 0, 0, 0.4);
 }
-/* corner index — white with a black outline so it reads on any colour */
+/* corner index — small, tucked in the corner, white with a thin dark outline */
 .uno-corner {
-  position: relative; z-index: 2;
+  position: relative; z-index: 3;
   font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 900; line-height: 1;
   color: #fff;
-  -webkit-text-stroke: 0.06em rgba(0, 0, 0, 0.7);
+  -webkit-text-stroke: 0.04em rgba(0, 0, 0, 0.6);
   paint-order: stroke fill;
-  text-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
 }
 
 /* card glow states */
