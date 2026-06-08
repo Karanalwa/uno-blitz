@@ -1,10 +1,13 @@
-import { useEffect, useState, useCallback, useMemo, type ReactNode } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogOut, RotateCcw, Volume2, VolumeX, X, Timer, Smile, Menu as MenuIcon } from "lucide-react";
+import { LogOut, RotateCcw, Volume2, VolumeX, X, Timer, Smile, Menu as MenuIcon, Crown } from "lucide-react";
 import { useGameStore } from "@/store/gameStore";
 import { useSound } from "@/hooks/useSound";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { recordMatch, recordUnoCall, recordDrawFour, recordMatchHistory } from "@/lib/playerStats";
+import { addCoins } from "@/lib/wallet";
+import { useSettings, vibrate } from "@/lib/settings";
 import { UnoCard, ColorPicker } from "@/components/UnoCard";
 import type { CardColor } from "../../api/game/types";
 
@@ -49,11 +52,11 @@ function MiniFan({ count }: { count: number }) {
 // Styled red UNO card back
 function CardBack({ className = "" }: { className?: string }) {
   return (
-    <div className={`uno-shell ${className}`}>
+    <div className={`uno-shell ${className}`} style={{ ["--cw" as string]: "82px" }}>
       <div className="uno-inner" style={{ background: "linear-gradient(160deg,#222,#000)" }}>
-        <div className="absolute left-1/2 top-1/2" style={{ width: "128%", height: "50%", transform: "translate(-50%,-50%) rotate(-26deg)", borderRadius: "9999px", background: "linear-gradient(160deg,#ea271f,#b3120f)", boxShadow: "inset 0 2px 6px rgba(0,0,0,0.45)" }} />
+        <div className="absolute left-1/2 top-1/2" style={{ width: "75%", height: "85%", transform: "translate(-50%,-50%) rotate(40deg)", borderRadius: "50%", border: "calc(var(--cw)*0.05) solid #fff", background: "radial-gradient(circle at 50% 42%,#ff3b33,#c40d0d)", boxShadow: "inset 0 2px 6px rgba(0,0,0,0.4)" }} />
         <div className="absolute inset-0 flex items-center justify-center">
-          <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontStyle: "italic", fontWeight: 900, color: "#ffce3a", WebkitTextStroke: "0.05em rgba(0,0,0,0.55)", paintOrder: "stroke fill", transform: "rotate(-8deg)", fontSize: "0.95rem", textShadow: "0 2px 2px rgba(0,0,0,0.4)" }}>UNO</span>
+          <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontStyle: "italic", fontWeight: 900, color: "#ffce3a", WebkitTextStrokeWidth: "calc(var(--cw)*0.018)", WebkitTextStrokeColor: "rgba(0,0,0,0.6)", paintOrder: "stroke fill", transform: "rotate(-20deg)", fontSize: "calc(var(--cw)*0.26)", textShadow: "0 2px 2px rgba(0,0,0,0.4)" }}>UNO</span>
         </div>
       </div>
     </div>
@@ -65,11 +68,14 @@ export default function Game() {
   const store = useGameStore();
   const sound = useSound();
   const isMobile = useIsMobile();
+  const settings = useSettings();
+  const anims = settings.cardAnimation;
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [showChat, setShowChat] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [lastAction, setLastAction] = useState("");
   const [unoCall, setUnoCall] = useState(false);
+  const recordedRef = useRef(false);
 
   useEffect(() => {
     if (!store.lastAction || !soundEnabled) return;
@@ -91,12 +97,58 @@ export default function Game() {
     }
   }, [store.phase, store.roomCode, store.gameMode, navigate]);
 
+  // Record the match result once when the match ends (powers the Profile stats).
+  useEffect(() => {
+    if (store.phase === "match_end") {
+      if (!recordedRef.current) {
+        recordedRef.current = true;
+        const myName = store.players.find((p) => p.id === store.playerId)?.username;
+        const won = !!myName && store.matchWinner === myName;
+        recordMatch(won);
+        const opponents = store.players.filter((p) => p.id !== store.playerId).map((p) => p.username).join(", ");
+        recordMatchHistory({ result: won ? "WIN" : "LOSE", players: opponents || "Bots", count: store.players.length, at: Date.now() });
+        addCoins(won ? 500 : 50);
+      }
+    } else {
+      recordedRef.current = false;
+    }
+  }, [store.phase, store.matchWinner, store.players, store.playerId]);
+
+  // Reset the turn timer whenever the active player changes (solo; MP is server-driven).
+  useEffect(() => {
+    if (store.gameMode === "solo") {
+      useGameStore.getState()._set({ turnTimeLeft: store.turnTimer || 30 });
+    }
+  }, [store.currentPlayerId, store.turnTimer, store.roundNumber, store.gameMode]);
+
+  // Tick the turn timer down once per second; auto-draw if my time runs out (solo only).
+  useEffect(() => {
+    const iv = setInterval(() => {
+      const st = useGameStore.getState();
+      if (st.phase !== "playing" || st.gameMode !== "solo") return;
+      const left = st.turnTimeLeft ?? 0;
+      if (left <= 0) {
+        // reset first so we never auto-draw twice for the same turn
+        st._set({ turnTimeLeft: st.turnTimer || 30 });
+        if (st.isMyTurn && st.myHand.length > 0) st.drawCard();
+        return;
+      }
+      st._set({ turnTimeLeft: left - 1 });
+    }, 1000);
+    return () => clearInterval(iv);
+  }, []);
+
   const handlePlayCard = useCallback((cardIndex: number) => {
     const card = store.myHand[cardIndex];
     if (!card || !store.isMyTurn || !store.topCard) return;
     if (!isCardPlayable(card, store.topCard, store.activeColor, store.isMyTurn)) { sound.playError(); return; }
-    if (card.type === "wild" || card.type === "wild4") { store._set({ showColorPicker: true, pendingCardIndex: cardIndex }); return; }
+    if (card.type === "wild" || card.type === "wild4") {
+      if (card.type === "wild4") recordDrawFour();
+      store._set({ showColorPicker: true, pendingCardIndex: cardIndex });
+      return;
+    }
     sound.playCard();
+    vibrate(18);
     store.playCard(cardIndex);
   }, [store, sound]);
 
@@ -111,6 +163,7 @@ export default function Game() {
     if (store.myHand.length !== 1) return;
     sound.playUno();
     store.declareUno();
+    recordUnoCall();
     setUnoCall(true);
     setTimeout(() => setUnoCall(false), 1700);
   }, [store, sound]);
@@ -129,7 +182,7 @@ export default function Game() {
       <header className="flex items-center justify-between px-3 py-2.5 z-20 flex-shrink-0">
         <div className="flex items-center gap-2">
           <button onClick={handleLeave} className="p-2 rounded-full bg-black/35 border border-white/10 text-gray-200 hover:text-white"><LogOut className="w-4 h-4" /></button>
-          <span className="currency-pill text-sm text-gold"><Timer className="w-4 h-4" /> 00:{String(Math.max(0, Math.ceil(store.turnTimeLeft || 0))).padStart(2, "0")}</span>
+          {settings.showTimer && <span className="currency-pill text-sm text-gold"><Timer className="w-4 h-4" /> 00:{String(Math.max(0, Math.ceil(store.turnTimeLeft || 0))).padStart(2, "0")}</span>}
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => setSoundEnabled(!soundEnabled)} className="p-2 rounded-full bg-black/35 border border-white/10 text-gray-200 hover:text-white">{soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-gray-500" />}</button>
@@ -193,7 +246,7 @@ export default function Game() {
           <div className="relative">
             <AnimatePresence mode="popLayout">
               {store.topCard && (
-                <motion.div key={store.topCard.id} initial={{ scale: 0.5, rotate: -24, y: 120, opacity: 0 }} animate={{ scale: [0.5, 1.14, 1], rotate: [-24, 7, 0], y: [120, -10, 0], opacity: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.42, times: [0, 0.68, 1], ease: "easeOut" }}>
+                <motion.div key={store.topCard.id} initial={anims ? { scale: 0.5, rotate: -24, y: 120, opacity: 0 } : false} animate={{ scale: anims ? [0.5, 1.14, 1] : 1, rotate: anims ? [-24, 7, 0] : 0, y: anims ? [120, -10, 0] : 0, opacity: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: anims ? 0.42 : 0, times: [0, 0.68, 1], ease: "easeOut" }}>
                   <UnoCard card={store.topCard} size={isMobile ? "md" : "lg"} active />
                 </motion.div>
               )}
@@ -228,8 +281,8 @@ export default function Game() {
 
       {/* ===== Turn indicator + UNO ===== */}
       <div className="flex items-center justify-center gap-3 flex-shrink-0 py-1 relative">
-        {store.isMyTurn && !hasPlayable && store.myHand.length > 0 && (
-          <button onClick={handlePass} className="btn-3d btn-ghost px-5 py-2 text-sm">Pass</button>
+        {settings.tutorialHints && store.isMyTurn && !hasPlayable && store.myHand.length > 0 && (
+          <span className="text-[11px] font-bold text-gold bg-black/40 px-3 py-1 rounded-full">No moves — draw a card</span>
         )}
         <AnimatePresence>
           {store.isMyTurn && (
@@ -254,7 +307,7 @@ export default function Game() {
             {store.myHand.map((card, index) => {
               const playable = isCardPlayable(card, store.topCard, store.activeColor, store.isMyTurn);
               return (
-                <motion.div key={card.id} initial={{ y: 90, x: -140, opacity: 0, rotate: -14, scale: 0.8 }} animate={{ y: playable ? -8 : 0, x: 0, opacity: 1, rotate: 0, scale: 1 }} transition={{ delay: index * 0.045, type: "spring", stiffness: 240, damping: 20 }}
+                <motion.div key={card.id} initial={anims ? { y: 90, x: -140, opacity: 0, rotate: -14, scale: 0.8 } : false} animate={{ y: playable ? -8 : 0, x: 0, opacity: 1, rotate: 0, scale: 1 }} transition={{ delay: anims ? index * 0.045 : 0, type: "spring", stiffness: 240, damping: 20 }}
                   className="flex-shrink-0 relative z-0 hover:z-10" style={{ marginLeft: `-${Math.min(store.myHand.length * 3.5, 26)}px` }}>
                   <UnoCard card={card} size="sm" playable={playable} onClick={playable ? () => handlePlayCard(index) : undefined} className={playable ? "" : "opacity-75 saturate-[0.85]"} />
                 </motion.div>
@@ -311,12 +364,16 @@ export default function Game() {
             <h2 className="font-display text-2xl font-extrabold text-center text-gold glow-gold-text mb-1">Round Over!</h2>
             <p className="text-center text-[#caa89a] text-xs mb-3">{store.roundScores.find((s) => s.roundWinner)?.username} wins the round</p>
             <div className="space-y-1.5 mb-3">
-              {store.roundScores.map((score, i) => (
-                <div key={i} className={`flex items-center justify-between p-2 rounded-lg ${score.roundWinner ? "bg-gold/10 border border-gold/30" : "panel-inset"}`}>
-                  <span className="text-sm">{score.username}</span>
-                  <span className={`text-sm font-bold ${score.roundWinner ? "text-gold" : "text-gray-400"}`}>{score.points > 0 ? `+${score.points}` : score.points}</span>
-                </div>
-              ))}
+              {store.roundScores.map((score, i) => {
+                const av = store.players.find((p) => p.id === score.playerId)?.avatar;
+                return (
+                  <div key={i} className={`flex items-center gap-2.5 p-2 rounded-lg ${score.roundWinner ? "bg-gold/10 border border-gold/30" : "panel-inset"}`}>
+                    {av && <div className="frame-ring w-8 h-8 flex-shrink-0"><img src={av} alt="" className="w-full h-full rounded-[0.5rem] object-cover" /></div>}
+                    <span className="text-sm flex-1 flex items-center gap-1 truncate">{score.username}{score.roundWinner && <Crown className="w-3.5 h-3.5 text-gold flex-shrink-0" />}</span>
+                    <span className={`text-sm font-bold ${score.roundWinner ? "text-gold" : "text-gray-500"}`}>+{score.points}</span>
+                  </div>
+                );
+              })}
             </div>
             <p className="text-center text-gray-500 text-xs animate-pulse">Next round starting…</p>
           </Overlay>
@@ -348,13 +405,19 @@ export default function Game() {
               ))}
             </div>
 
-            <div className="space-y-1 mb-4">
-              {store.finalScores.map((score, i) => (
-                <div key={i} className={`flex items-center justify-between p-1.5 rounded-lg text-xs ${i === 0 ? "bg-gold/10 border border-gold/30" : "panel-inset"}`}>
-                  <span>#{score.rank} {score.username}</span>
-                  <span className="text-gold font-bold">{score.score} pts</span>
-                </div>
-              ))}
+            <div className="space-y-1.5 mb-4">
+              {store.finalScores.map((score, i) => {
+                const av = store.players.find((p) => p.id === score.playerId)?.avatar;
+                const rankColor = i === 0 ? "text-gold" : i === 1 ? "text-gray-300" : i === 2 ? "text-amber-600" : "text-gray-500";
+                return (
+                  <div key={i} className={`flex items-center gap-2.5 p-1.5 rounded-lg ${i === 0 ? "bg-gold/10 border border-gold/30" : "panel-inset"}`}>
+                    <span className={`font-display font-extrabold w-5 text-center ${rankColor}`}>{score.rank}</span>
+                    {av && <div className={`w-8 h-8 flex-shrink-0 frame-ring ${i === 0 ? "" : "opacity-80"}`}><img src={av} alt="" className="w-full h-full rounded-[0.5rem] object-cover" /></div>}
+                    <span className="text-sm flex-1 flex items-center gap-1 truncate">{score.username}{i === 0 && <Crown className="w-4 h-4 text-gold flex-shrink-0" />}</span>
+                    <span className="text-gold font-bold text-sm">{score.score} pts</span>
+                  </div>
+                );
+              })}
             </div>
             <div className="flex gap-3">
               <button onClick={handleLeave} className="btn-3d btn-gold flex-1 py-3 flex items-center justify-center gap-2 text-sm"><RotateCcw className="w-4 h-4" /> Play Again</button>

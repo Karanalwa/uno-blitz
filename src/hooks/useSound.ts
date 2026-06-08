@@ -1,4 +1,5 @@
 import { useCallback, useRef } from "react";
+import { getSettings } from "@/lib/settings";
 
 // Web Audio API sound synthesis
 function createAudioContext(): AudioContext | null {
@@ -9,14 +10,22 @@ function createAudioContext(): AudioContext | null {
   }
 }
 
+function masterVolume(): number {
+  const s = getSettings();
+  if (s.muteAll) return 0;
+  return Math.max(0, Math.min(1, s.sfxVolume / 100));
+}
+
 function playTone(ctx: AudioContext, frequency: number, duration: number, type: OscillatorType = "sine", volume = 0.3) {
+  const master = masterVolume();
+  if (master <= 0) return;
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
 
   osc.type = type;
   osc.frequency.setValueAtTime(frequency, ctx.currentTime);
 
-  gain.gain.setValueAtTime(volume, ctx.currentTime);
+  gain.gain.setValueAtTime(volume * master, ctx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
 
   osc.connect(gain);
@@ -27,6 +36,8 @@ function playTone(ctx: AudioContext, frequency: number, duration: number, type: 
 }
 
 function playNoise(ctx: AudioContext, duration: number, volume = 0.1) {
+  const master = masterVolume();
+  if (master <= 0) return;
   const bufferSize = ctx.sampleRate * duration;
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
   const data = buffer.getChannelData(0);
@@ -39,7 +50,7 @@ function playNoise(ctx: AudioContext, duration: number, volume = 0.1) {
   source.buffer = buffer;
 
   const gain = ctx.createGain();
-  gain.gain.setValueAtTime(volume, ctx.currentTime);
+  gain.gain.setValueAtTime(volume * master, ctx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
 
   source.connect(gain);
