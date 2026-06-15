@@ -36,25 +36,25 @@ export default function JoinRoom() {
 
   return (
     <ScreenShell title="JOIN ROOM" back="/home" maxWidth="max-w-lg">
-      <div className="glass rounded-2xl p-5">
+      <div className="glass rounded-2xl p-4 sm:p-5">
         <p className="text-[10px] font-bold tracking-[0.15em] text-[#caa15a] mb-2 text-center">ENTER ROOM CODE</p>
         <div className="relative mb-4" onClick={() => inputRef.current?.focus()}>
           <div className="flex justify-center gap-2">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className={`otp-box flex items-center justify-center w-11 h-14 ${code.length === i ? "ring-2 ring-gold" : ""}`}>{code[i] ?? ""}</div>
+              <div key={i} className={`otp-box flex items-center justify-center w-10 h-12 sm:w-11 sm:h-14 ${code.length === i ? "ring-2 ring-gold" : ""}`}>{code[i] ?? ""}</div>
             ))}
           </div>
           <input ref={inputRef} value={code} onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6))} maxLength={6} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" aria-label="Room code" />
         </div>
 
-        <button onClick={() => join(code)} disabled={!connected || code.length !== 6} className="btn-3d btn-green w-full py-3.5 flex items-center justify-center gap-2 mb-3">
+        <button onClick={() => join(code)} disabled={!connected || code.length !== 6} className="btn-3d btn-green w-full py-3.5 flex items-center justify-center gap-2 mb-3 touch-target">
           <LogIn className="w-5 h-5" /> JOIN ROOM
         </button>
 
         <div className="flex items-center gap-3 my-3">
           <div className="flex-1 h-px bg-white/10" /><span className="text-xs text-gray-500">OR</span><div className="flex-1 h-px bg-white/10" />
         </div>
-        <button onClick={() => sound.playButton()} className="btn-3d btn-purple w-full py-3 flex items-center justify-center gap-2 mb-5 text-sm">
+        <button onClick={() => sound.playButton()} className="btn-3d btn-purple w-full py-3 flex items-center justify-center gap-2 mb-5 text-sm touch-target">
           <QrCode className="w-4 h-4" /> SCAN QR CODE
         </button>
 
@@ -67,7 +67,7 @@ export default function JoinRoom() {
                 <p className="text-[11px] text-gray-400">{r.mode} · 4 Players</p>
               </div>
               <span className="count-badge">{r.players}</span>
-              <button onClick={() => { setCode(r.code); join(r.code); }} disabled={!connected} className="btn-3d btn-gold px-4 py-1.5 text-xs">JOIN</button>
+              <button onClick={() => { setCode(r.code); join(r.code); }} disabled={!connected} className="btn-3d btn-gold px-4 py-1.5 text-xs touch-target">JOIN</button>
             </div>
           ))}
         </div>

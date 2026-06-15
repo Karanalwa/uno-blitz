@@ -4,7 +4,7 @@ import type { Card } from "../../api/game/types";
 
 interface UnoCardProps {
   card: Card;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
   playable?: boolean;
   faceDown?: boolean;
   active?: boolean;
@@ -12,11 +12,13 @@ interface UnoCardProps {
   className?: string;
 }
 
-// w = Tailwind width class, cw = the matching pixel width that drives proportional scaling
+// Responsive pixel widths that scale with viewport via CSS variables
 const sizeMap = {
-  sm: { w: "w-16", h: "h-24", cw: "64px" },
-  md: { w: "w-20", h: "h-28", cw: "80px" },
-  lg: { w: "w-28", h: "h-40", cw: "112px" },
+  xs: { cw: "var(--card-sm)", aspect: "aspect-[2/3]" },
+  sm: { cw: "var(--card-sm)", aspect: "aspect-[2/3]" },
+  md: { cw: "var(--card-md)", aspect: "aspect-[2/3]" },
+  lg: { cw: "var(--card-lg)", aspect: "aspect-[2/3]" },
+  xl: { cw: "var(--card-xl)", aspect: "aspect-[2/3]" },
 };
 
 function centerGlyph(card: Card): string {
@@ -44,7 +46,7 @@ export function UnoCard({ card, size = "md", playable = false, faceDown = false,
     return (
       <motion.div
         whileHover={onClick ? { y: -5, scale: 1.05 } : {}}
-        className={`uno-shell ${s.w} ${s.h} ${onClick ? "cursor-pointer" : ""} ${className}`}
+        className={`uno-shell ${s.aspect} ${onClick ? "cursor-pointer" : ""} ${className}`}
         style={cwStyle}
         onClick={onClick}
       >
@@ -69,7 +71,7 @@ export function UnoCard({ card, size = "md", playable = false, faceDown = false,
       whileTap={onClick ? { scale: 0.95, rotateX: 0, rotateY: 0 } : {}}
       transition={{ type: "spring", stiffness: 320, damping: 22 }}
       style={{ ...cwStyle, transformPerspective: 800 }}
-      className={`uno-shell ${s.w} ${s.h} ${onClick ? "cursor-pointer" : ""} ${active ? "card-active-glow" : playable ? "card-playable-glow" : ""} ${className}`}
+      className={`uno-shell ${s.aspect} ${onClick ? "cursor-pointer" : ""} ${active ? "card-active-glow" : playable ? "card-playable-glow" : ""} ${className}`}
       onClick={onClick}
     >
       <div className={`uno-inner suit-${suit}`}>

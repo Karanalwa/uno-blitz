@@ -34,7 +34,7 @@ export default function Splash() {
           initial={{ opacity: 0, scale: 0.6 }}
           animate={{ opacity: 1, scale: 1, y: [0, -16, 0], rotate: c.rot }}
           transition={{ opacity: { delay: c.d }, scale: { delay: c.d }, y: { duration: 3 + i * 0.3, repeat: Infinity }, rotate: { delay: c.d } }}>
-          <div className="uno-shell w-16 h-24 sm:w-20 sm:h-28" style={{ ["--cw" as string]: "76px" }}>
+          <div className="uno-shell w-12 h-18 sm:w-16 sm:h-24 md:w-20 md:h-28" style={{ ["--cw" as string]: "var(--card-sm)" }}>
             <div className={`uno-inner ${c.cls}`}><div className="uno-oval" /><div className="absolute inset-0 flex items-center justify-center"><span className={`uno-glyph text-2xl ${c.glyph}`}>{c.label}</span></div></div>
           </div>
         </motion.div>
@@ -42,13 +42,13 @@ export default function Splash() {
 
       {/* logo */}
       <motion.h1 initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 160, damping: 12 }}
-        className="font-display font-extrabold text-7xl sm:text-8xl tracking-tight relative z-10"
+        className="font-display font-extrabold text-6xl sm:text-7xl md:text-8xl tracking-tight relative z-10"
         style={{ color: "#ffce3a", textShadow: "0 0 40px rgba(224,30,30,0.8), 0 5px 0 #a81212, 0 8px 18px rgba(0,0,0,0.7)" }}>
         UNO<span className="text-unored">!</span>
       </motion.h1>
 
       {/* loading bar */}
-      <div className="relative z-10 mt-10 w-64">
+      <div className="relative z-10 mt-8 sm:mt-10 w-56 sm:w-64">
         <div className="panel-inset rounded-full h-3 overflow-hidden">
           <motion.div className="h-full rounded-full" style={{ width: `${pct}%`, background: "linear-gradient(90deg, #ffd255, #f0a818)" }} transition={{ ease: "linear" }} />
         </div>

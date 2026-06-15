@@ -25,24 +25,31 @@
     --ring: 222.2 84% 4.9%;
     --radius: 0.75rem;
 
-    /* UNO overhaul palette */
+    /* UNO palette */
     --uno-gold: #f5a623;
     --uno-gold-light: #f7b84e;
     --uno-green: #2ecc71;
     --uno-red: #e74c3c;
     --uno-blue: #3498db;
     --uno-purple: #9b59b6;
+
+    /* Responsive card sizing */
+    --card-sm: clamp(48px, 14vw, 64px);
+    --card-md: clamp(56px, 16vw, 80px);
+    --card-lg: clamp(72px, 20vw, 112px);
+    --card-xl: clamp(88px, 22vw, 140px);
   }
 
   body {
     @apply text-white overflow-x-hidden;
     background: #0a0a0f;
     font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
 /* ============================================================
-   UNO — premium dark + gold design system
+   UNO — responsive premium dark + gold design system
    ============================================================ */
 
 /* App background (menus): near-black with faint colored particles */
@@ -297,3 +304,31 @@
 ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
 ::-webkit-scrollbar-thumb { background: rgba(245, 166, 35, 0.4); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(245, 166, 35, 0.6); }
+
+/* ============================================================
+   RESPONSIVE UTILITIES
+   ============================================================ */
+
+/* Safe area insets for notched devices */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .safe-top { padding-top: env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* Touch-friendly minimum tap target */
+.touch-target { min-height: 44px; min-width: 44px; }
+
+/* Landscape phone optimizations */
+@media (max-height: 500px) and (orientation: landscape) {
+  .landscape-compact { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+  .landscape-hide { display: none !important; }
+}
+
+/* Prevent text selection on interactive elements */
+.no-select { user-select: none; -webkit-user-select: none; }
+
+/* Card sizing helpers for responsive scaling */
+.card-responsive-sm { --cw: var(--card-sm); }
+.card-responsive-md { --cw: var(--card-md); }
+.card-responsive-lg { --cw: var(--card-lg); }
+.card-responsive-xl { --cw: var(--card-xl); }

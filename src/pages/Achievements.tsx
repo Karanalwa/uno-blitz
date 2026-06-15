@@ -60,7 +60,7 @@ export default function Achievements() {
               {isClaimed ? (
                 <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1 flex-shrink-0"><Check className="w-3.5 h-3.5" /> Claimed</span>
               ) : done ? (
-                <button onClick={() => claim(a.id, a.reward)} className="btn-3d btn-gold px-3 py-1.5 text-xs flex items-center gap-1 flex-shrink-0"><Coins className="w-3.5 h-3.5" /> {a.reward}</button>
+                <button onClick={() => claim(a.id, a.reward)} className="btn-3d btn-gold px-3 py-1.5 text-xs flex items-center gap-1 flex-shrink-0 touch-target"><Coins className="w-3.5 h-3.5" /> {a.reward}</button>
               ) : (
                 <span className="currency-pill text-xs text-gray-400 flex-shrink-0"><Coins className="w-3.5 h-3.5" /> {a.reward}</span>
               )}

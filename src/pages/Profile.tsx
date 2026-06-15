@@ -60,17 +60,17 @@ export default function Profile() {
   return (
     <ScreenShell title="PROFILE" maxWidth="max-w-2xl">
       {/* header card */}
-      <div className="glass rounded-2xl p-5 flex items-center gap-4 mb-4">
-        <button onClick={openEdit} className="relative frame-ring w-20 h-20 flex-shrink-0 group">
+      <div className="glass rounded-2xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 mb-4">
+        <button onClick={openEdit} className="relative frame-ring w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 group">
           <img src={avatar} alt="" className="w-full h-full rounded-xl object-cover" />
           <span className="absolute inset-0 rounded-xl bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition"><Edit3 className="w-5 h-5" /></span>
         </button>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="font-display font-extrabold text-2xl truncate">{name}</h2>
+            <h2 className="font-display font-extrabold text-xl sm:text-2xl truncate">{name}</h2>
             <button onClick={openEdit} className="text-gray-400 hover:text-white"><Edit3 className="w-4 h-4" /></button>
           </div>
-          <div className="flex items-center gap-2 mb-1.5">
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <p className="text-sm text-gold font-bold">Lv. {lvl.level}</p>
             <span className="currency-pill text-[11px] text-gold"><Coins className="w-3 h-3" /> {wallet.coins.toLocaleString()}</span>
             <span className="currency-pill text-[11px] text-sky-300"><Gem className="w-3 h-3" /> {wallet.gems.toLocaleString()}</span>
@@ -89,7 +89,7 @@ export default function Profile() {
       </div>
 
       {/* real stats */}
-      <div className="glass rounded-2xl p-4 mb-4 grid grid-cols-3 gap-3">
+      <div className="glass rounded-2xl p-3 sm:p-4 mb-4 grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
         <Stat label="Games Played" value={stats.gamesPlayed} />
         <Stat label="Wins" value={stats.wins} />
         <Stat label="Win Rate" value={winRate(stats)} accent />
@@ -102,14 +102,14 @@ export default function Profile() {
       )}
 
       {/* achievements */}
-      <div className="glass rounded-2xl p-4">
+      <div className="glass rounded-2xl p-3 sm:p-4">
         <div className="flex items-center justify-between mb-3">
           <p className="text-[10px] font-bold tracking-[0.15em] text-[#caa15a] flex items-center gap-1.5"><Award className="w-3.5 h-3.5" /> ACHIEVEMENTS</p>
           <button onClick={() => navigate("/achievements")} className="text-[11px] text-gold">VIEW ALL</button>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-1">
           {ACHIEVEMENTS.map((a) => (
-            <button key={a.name} onClick={() => navigate("/achievements")} className="flex-1 aspect-square rounded-xl flex items-center justify-center text-2xl panel-inset hover:brightness-125 transition" style={{ boxShadow: `inset 0 0 18px ${TIER_COLOR[a.tier]}33` }} title={a.name}>
+            <button key={a.name} onClick={() => navigate("/achievements")} className="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center text-2xl panel-inset hover:brightness-125 transition" style={{ boxShadow: `inset 0 0 18px ${TIER_COLOR[a.tier]}33` }} title={a.name}>
               <span style={{ filter: `drop-shadow(0 0 6px ${TIER_COLOR[a.tier]})` }}>🛡️</span>
             </button>
           ))}
@@ -156,7 +156,7 @@ export default function Profile() {
 function Stat({ label, value, accent }: { label: string; value: string | number; accent?: boolean }) {
   return (
     <div className="panel-inset rounded-xl p-3 text-center">
-      <p className={`font-display font-extrabold text-2xl ${accent ? "text-gold" : "text-white"}`}>{value}</p>
+      <p className={`font-display font-extrabold text-xl sm:text-2xl ${accent ? "text-gold" : "text-white"}`}>{value}</p>
       <p className="text-[10px] text-gray-400 mt-0.5">{label}</p>
     </div>
   );

@@ -80,11 +80,11 @@ export default function Home() {
 
       {/* floating cards */}
       {fx.backgroundFx && (<>
-      <FloatCard label="5" suit="suit-red" glyph="glyph-red" style={{ top: "13%", left: "18%" }} rot={-20} size={56} />
-      <FloatCard label="+4" suit="suit-wild" glyph="glyph-wild" style={{ top: "11%", right: "16%" }} rot={16} size={56} wild />
-      <FloatCard label="8" suit="suit-yellow" glyph="glyph-yellow" style={{ top: "50%", left: "20%" }} rot={-18} size={54} />
-      <FloatCard label="⟲" suit="suit-green" glyph="glyph-green" style={{ bottom: "16%", right: "8%" }} rot={14} size={58} />
-      <FloatBack style={{ bottom: "2%", left: "2%" }} rot={-14} size={64} />
+      <FloatCard label="5" suit="suit-red" glyph="glyph-red" style={{ bottom: "30%", left: "6%" }} rot={-20} size={46} />
+      <FloatCard label="+4" suit="suit-wild" glyph="glyph-wild" style={{ bottom: "34%", right: "5%" }} rot={16} size={46} wild />
+      <FloatCard label="8" suit="suit-yellow" glyph="glyph-yellow" style={{ bottom: "14%", left: "16%" }} rot={-18} size={48} />
+      <FloatCard label="⟲" suit="suit-green" glyph="glyph-green" style={{ bottom: "9%", right: "8%" }} rot={14} size={52} />
+      <FloatBack style={{ bottom: "1%", left: "3%" }} rot={-14} size={56} />
       </>)}
 
       {/* ===== Top bar ===== */}
@@ -103,10 +103,10 @@ export default function Home() {
         <div className="flex items-center gap-1.5 flex-shrink-0">
           <span className="currency-pill text-xs text-gold gap-1"><Coins className="w-3.5 h-3.5" /> {wallet.coins.toLocaleString()} <Plus className="w-3 h-3 text-gold" /></span>
           <span className="currency-pill text-xs text-sky-300 gap-1 hidden sm:inline-flex"><Gem className="w-3.5 h-3.5" /> {wallet.gems.toLocaleString()} <Plus className="w-3 h-3 text-gold" /></span>
-          <button onClick={() => navigate("/rewards")} className="relative p-2 rounded-full bg-black/45 border border-white/10 text-gray-200 hover:text-white">
+          <button onClick={() => navigate("/rewards")} className="relative p-2 rounded-full bg-black/45 border border-white/10 text-gray-200 hover:text-white touch-target">
             <Bell className="w-4 h-4" /><span className="absolute -top-1 -right-1 w-4 h-4 bg-suit-red rounded-full text-[9px] font-bold flex items-center justify-center border border-[#3a0000]">3</span>
           </button>
-          <button onClick={() => navigate("/settings")} className="p-2 rounded-full bg-black/45 border border-white/10 text-gray-200 hover:text-white"><SettingsIcon className="w-4 h-4" /></button>
+          <button onClick={() => navigate("/settings")} className="p-2 rounded-full bg-black/45 border border-white/10 text-gray-200 hover:text-white touch-target"><SettingsIcon className="w-4 h-4" /></button>
         </div>
       </header>
 
@@ -116,7 +116,7 @@ export default function Home() {
         <nav className="flex-shrink-0 w-[52px] sm:w-[76px] py-2 flex flex-col items-stretch gap-0.5 sm:gap-1 bg-black/40 rounded-r-2xl border-r border-white/5 overflow-y-auto">
           {NAV.map(({ icon: Icon, label, to, selected, disabled }) => (
             <button key={label} onClick={() => navTo(to, disabled)}
-              className={`flex flex-col items-center gap-0.5 sm:gap-1 py-1.5 sm:py-2 mx-1 sm:mx-1.5 rounded-xl transition ${selected ? "bg-gold/10 text-gold border border-gold/50 shadow-[0_0_14px_rgba(245,166,35,0.35)]" : disabled ? "text-gray-500" : "text-gray-300 hover:text-white hover:bg-white/5"}`}>
+              className={`flex flex-col items-center gap-0.5 sm:gap-1 py-1.5 sm:py-2 mx-1 sm:mx-1.5 rounded-xl transition touch-target ${selected ? "bg-gold/10 text-gold border border-gold/50 shadow-[0_0_14px_rgba(245,166,35,0.35)]" : disabled ? "text-gray-500" : "text-gray-300 hover:text-white hover:bg-white/5"}`}>
               <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="text-[6px] sm:text-[8px] font-bold tracking-wide leading-none">{label}</span>
             </button>
@@ -125,16 +125,16 @@ export default function Home() {
 
         {/* content area */}
         <div className="relative flex-1 flex flex-col min-w-0 px-2 sm:px-3 pb-4">
-          {/* right widgets */}
-          <div className="absolute top-1.5 right-1.5 w-[86px] sm:w-[138px] flex flex-col gap-2 sm:gap-3 z-20">
-            <div className="glass rounded-2xl p-2 sm:p-2.5 text-center">
+          {/* widgets: a row above the logo on phones; a right-side column on large screens */}
+          <div className="flex flex-row lg:flex-col gap-2 lg:gap-3 mt-1 lg:mt-0 lg:absolute lg:top-2 lg:right-2 lg:w-[138px] z-20">
+            <div className="glass rounded-2xl p-2 sm:p-2.5 text-center flex-1 lg:flex-none">
               <p className="text-[8px] sm:text-[10px] font-extrabold tracking-wide text-gold mb-0.5 sm:mb-1 leading-none">DAILY REWARD</p>
-              <motion.div animate={{ y: [0, -4, 0] }} transition={{ duration: 2, repeat: Infinity }} className="text-3xl sm:text-4xl mb-0.5 sm:mb-1" style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.5))" }}>🎁</motion.div>
+              <motion.div animate={{ y: [0, -4, 0] }} transition={{ duration: 2, repeat: Infinity }} className="text-2xl sm:text-4xl mb-0.5 sm:mb-1" style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.5))" }}>🎁</motion.div>
               <button onClick={() => navigate("/rewards")} className="currency-pill text-[9px] sm:text-[11px] text-gold w-full justify-center"><Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> 23h 45m</button>
             </div>
-            <div className="glass rounded-2xl p-2 sm:p-2.5 text-center">
+            <div className="glass rounded-2xl p-2 sm:p-2.5 text-center flex-1 lg:flex-none">
               <p className="text-[8px] sm:text-[10px] font-extrabold tracking-wide text-gold mb-0.5 sm:mb-1 leading-none">SEASON PASS</p>
-              <div className="text-3xl sm:text-4xl mb-0.5 sm:mb-1" style={{ filter: "drop-shadow(0 0 8px rgba(155,89,182,0.7))" }}>🛡️</div>
+              <div className="text-2xl sm:text-4xl mb-0.5 sm:mb-1" style={{ filter: "drop-shadow(0 0 8px rgba(155,89,182,0.7))" }}>🛡️</div>
               <div className="panel-inset rounded-full h-3 sm:h-3.5 overflow-hidden relative">
                 <div className="h-full rounded-full" style={{ width: "60%", background: "linear-gradient(90deg,#ffd255,#f0a818)" }} />
                 <span className="absolute inset-0 flex items-center justify-center text-[8px] sm:text-[9px] font-extrabold text-[#3a2600]">120 / 200</span>
@@ -142,9 +142,11 @@ export default function Home() {
             </div>
           </div>
 
-          {/* logo — reserves right space so it never overlaps the widgets */}
-          <div className="flex-1 flex items-center justify-center min-h-0 pr-[72px] sm:pr-[150px]">
-            <UnoLogo />
+          {/* logo (full width on phones; clears the right widget column on large screens) */}
+          <div className="flex-1 flex items-center justify-center min-h-0 py-2 lg:pr-[150px]">
+            <div className="w-full max-w-[190px] sm:max-w-[240px]">
+              <UnoLogo />
+            </div>
           </div>
 
           {/* buttons */}
@@ -215,10 +217,10 @@ export default function Home() {
 /* ---- the UNO logo (red ellipse + glow + wordmark) ---- */
 function UnoLogo() {
   return (
-    <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }} className="relative" style={{ width: "min(50vw, 240px)", aspectRatio: "1.45 / 1" }}>
-      <div className="absolute inset-0 rounded-[50%]" style={{ background: "radial-gradient(circle at 50% 38%, #ff3b30, #d40e08 70%, #a60a05 100%)", boxShadow: "0 0 0 7px #fff, 0 0 50px 12px rgba(255,90,60,0.75), 0 12px 34px rgba(0,0,0,0.55)" }} />
+    <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }} className="relative w-full" style={{ aspectRatio: "1.45 / 1" }}>
+      <div className="absolute inset-0 rounded-[50%]" style={{ background: "radial-gradient(circle at 50% 38%, #ff3b30, #d40e08 70%, #a60a05 100%)", boxShadow: "0 0 0 5px #fff, 0 0 28px 6px rgba(255,90,60,0.7), 0 10px 26px rgba(0,0,0,0.5)" }} />
       <div className="absolute inset-0 flex items-center justify-center">
-        <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontStyle: "italic", fontWeight: 900, fontSize: "min(13vw, 62px)", color: "#ffce1f", WebkitTextStrokeWidth: "min(1vw, 4px)", WebkitTextStrokeColor: "#1a1a1a", paintOrder: "stroke fill", transform: "rotate(-4deg)", textShadow: "0 4px 6px rgba(0,0,0,0.4)", letterSpacing: "-0.02em" }}>UNO</span>
+        <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontStyle: "italic", fontWeight: 900, fontSize: "clamp(26px, 10vw, 52px)", color: "#ffce1f", WebkitTextStrokeWidth: "clamp(2px, 0.8vw, 4px)", WebkitTextStrokeColor: "#1a1a1a", paintOrder: "stroke fill", transform: "rotate(-4deg)", textShadow: "0 4px 6px rgba(0,0,0,0.4)", letterSpacing: "-0.02em" }}>UNO</span>
       </div>
       <span className="absolute top-1 right-2 text-white text-[10px] font-bold">™</span>
     </motion.div>

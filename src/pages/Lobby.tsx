@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Crown, Check, Copy, ArrowLeft, Share2, Settings2, Send, Play, MessageSquare, Smile, UserPlus } from "lucide-react";
 import { useGameStore } from "@/store/gameStore";
 import { useSound } from "@/hooks/useSound";
@@ -47,23 +47,23 @@ export default function Lobby() {
   const EMOJIS = ["👋", "😎", "🔥", "😂", "👍", "🎉", "😮", "🤝", "❤️", "🍀", "💪", "🎯"];
 
   return (
-    <div className="casino-bg min-h-[100dvh] w-full flex flex-col text-[#ece6da] overflow-x-hidden p-4">
+    <div className="casino-bg min-h-[100dvh] w-full flex flex-col text-[#ece6da] overflow-x-hidden p-3 sm:p-4">
       {/* header */}
       <div className="flex items-center justify-between mb-4 max-w-6xl w-full mx-auto">
-        <button onClick={handleLeave} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white"><ArrowLeft className="w-4 h-4" /> Leave</button>
-        <h1 className="font-display font-extrabold text-xl tracking-wide">GAME LOBBY</h1>
+        <button onClick={handleLeave} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white touch-target"><ArrowLeft className="w-4 h-4" /> Leave</button>
+        <h1 className="font-display font-extrabold text-lg sm:text-xl tracking-wide">GAME LOBBY</h1>
         <span className="text-xs text-gray-500">{readyCount}/{store.players.length} ready</span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 max-w-6xl w-full mx-auto flex-1">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-3 sm:gap-4 max-w-6xl w-full mx-auto flex-1">
         {/* ===== Lobby panel ===== */}
-        <div className="glass rounded-2xl p-4 flex flex-col">
+        <div className="glass rounded-2xl p-3 sm:p-4 flex flex-col">
           {/* code + mode */}
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
             <div className="panel-inset rounded-xl px-4 py-3 flex-1">
               <p className="text-[10px] text-[#caa15a] font-bold tracking-wider">ROOM CODE</p>
               <button onClick={copyCode} className="flex items-center gap-2">
-                <span className="font-display font-extrabold text-2xl text-gold tracking-[0.2em]">{store.roomCode}</span>
+                <span className="font-display font-extrabold text-xl sm:text-2xl text-gold tracking-[0.2em]">{store.roomCode}</span>
                 <Copy className="w-4 h-4 text-gray-400" />
                 {copied && <span className="text-[10px] text-emerald-400">Copied!</span>}
               </button>
@@ -119,11 +119,11 @@ export default function Lobby() {
 
           {/* ready + start */}
           <div className="flex gap-2.5 mt-4">
-            <button onClick={handleReady} className={`btn-3d ${store.isReady ? "btn-green" : "btn-ghost"} flex-1 py-3 flex items-center justify-center gap-2`}>
+            <button onClick={handleReady} className={`btn-3d ${store.isReady ? "btn-green" : "btn-ghost"} flex-1 py-3 flex items-center justify-center gap-2 touch-target`}>
               <Check className="w-5 h-5" /> {store.isReady ? "Ready!" : "Ready Up"}
             </button>
             {store.isHost ? (
-              <button onClick={handleStart} disabled={!canStart} className={`btn-3d ${canStart ? "btn-gold animate-glow-pulse" : "btn-ghost"} flex-[1.5] py-3 flex items-center justify-center gap-2`}>
+              <button onClick={handleStart} disabled={!canStart} className={`btn-3d ${canStart ? "btn-gold animate-glow-pulse" : "btn-ghost"} flex-[1.5] py-3 flex items-center justify-center gap-2 touch-target`}>
                 <Play className="w-5 h-5 fill-current" /> START GAME
               </button>
             ) : (
@@ -133,7 +133,7 @@ export default function Lobby() {
         </div>
 
         {/* ===== Side: chat + settings ===== */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 sm:gap-4">
           {/* chat */}
           <div className="glass rounded-2xl flex flex-col flex-1 min-h-[220px] overflow-hidden">
             <div className="flex border-b border-white/10">
@@ -148,7 +148,7 @@ export default function Lobby() {
                 </div>
                 <div className="p-2.5 flex gap-2 border-t border-white/10">
                   <input value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendChat()} placeholder="Type a message…" className="flex-1 panel-inset rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-gold" />
-                  <button onClick={sendChat} className="btn-3d btn-gold px-3"><Send className="w-4 h-4" /></button>
+                  <button onClick={sendChat} className="btn-3d btn-gold px-3 touch-target"><Send className="w-4 h-4" /></button>
                 </div>
               </>
             ) : (
@@ -182,8 +182,8 @@ export default function Lobby() {
 
 function InviteBtn({ label, color, onClick, icon }: { label: string; color: string; onClick: () => void; icon?: ReactNode }) {
   return (
-    <button onClick={onClick} className="flex-1 flex flex-col items-center gap-1 group">
-      <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold shadow-lg group-hover:scale-110 transition-transform" style={{ background: color }}>
+    <button onClick={onClick} className="flex-1 flex flex-col items-center gap-1 group touch-target">
+      <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-white font-bold shadow-lg group-hover:scale-110 transition-transform" style={{ background: color }}>
         {icon || label[0]}
       </div>
       <span className="text-[9px] text-gray-400">{label}</span>

@@ -37,24 +37,24 @@ export default function Rewards() {
   return (
     <ScreenShell title="REWARDS" maxWidth="max-w-2xl" right={<span className="currency-pill text-xs text-gold"><Coins className="w-3.5 h-3.5" /> {wallet.coins.toLocaleString()}</span>}>
       <div className="grid grid-cols-1 md:grid-cols-[150px_1fr] gap-4">
-        <div className="glass rounded-2xl p-2 flex md:flex-col gap-1 h-fit">
+        <div className="glass rounded-2xl p-2 flex md:flex-col gap-1 h-fit overflow-x-auto">
           {TABS.map((t) => (
-            <button key={t} onClick={() => setTab(t)} className={`px-3 py-2.5 rounded-xl text-xs font-bold text-left whitespace-nowrap ${tab === t ? "btn-3d btn-gold" : "text-gray-400 hover:bg-white/5"}`}>{t}</button>
+            <button key={t} onClick={() => setTab(t)} className={`px-3 py-2.5 rounded-xl text-xs font-bold text-left whitespace-nowrap touch-target ${tab === t ? "btn-3d btn-gold" : "text-gray-400 hover:bg-white/5"}`}>{t}</button>
           ))}
         </div>
 
-        <div className="glass rounded-2xl p-5">
+        <div className="glass rounded-2xl p-4 sm:p-5">
           <div className="flex items-center gap-3 mb-4">
-            <motion.div animate={{ y: [0, -6, 0], rotate: [0, -3, 3, 0] }} transition={{ duration: 2, repeat: Infinity }} className="text-5xl">🎁</motion.div>
+            <motion.div animate={{ y: [0, -6, 0], rotate: [0, -3, 3, 0] }} transition={{ duration: 2, repeat: Infinity }} className="text-4xl sm:text-5xl">🎁</motion.div>
             <div>
-              <h3 className="font-display font-extrabold text-lg">{tab}</h3>
+              <h3 className="font-display font-extrabold text-base sm:text-lg">{tab}</h3>
               <p className="text-xs text-gray-400">{tab === "Daily Reward" ? "Log in daily to claim — keep your streak going!" : "Coming soon."}</p>
             </div>
           </div>
 
           {tab === "Daily Reward" && (
             <>
-              <div className="grid grid-cols-7 gap-1.5 mb-5">
+              <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 mb-5">
                 {WEEK.map((amt, i) => {
                   const isToday = i === dayIndex;
                   const isPast = i < dayIndex;
@@ -68,7 +68,7 @@ export default function Rewards() {
                 })}
               </div>
 
-              <button onClick={claim} disabled={claimedToday} className={`btn-3d ${claimedToday ? "btn-ghost" : "btn-gold"} w-full py-3 text-sm flex items-center justify-center gap-2`}>
+              <button onClick={claim} disabled={claimedToday} className={`btn-3d ${claimedToday ? "btn-ghost" : "btn-gold"} w-full py-3 text-sm flex items-center justify-center gap-2 touch-target`}>
                 {claimedToday ? <><Check className="w-4 h-4" /> Claimed — come back tomorrow</> : <><Coins className="w-4 h-4" /> Claim {todayReward} coins (Day {dayIndex + 1})</>}
               </button>
               <p className="text-center text-[11px] text-gray-500 mt-2">Current streak: {streak} day{streak === 1 ? "" : "s"}</p>

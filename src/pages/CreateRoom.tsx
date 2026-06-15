@@ -36,21 +36,21 @@ export default function CreateRoom() {
 
   return (
     <ScreenShell title="CREATE ROOM" back="/home" maxWidth="max-w-lg">
-      <div className="glass rounded-2xl p-5 space-y-5">
+      <div className="glass rounded-2xl p-4 sm:p-5 space-y-5">
         {/* Players */}
         <Section label="PLAYERS">
           <div className="grid grid-cols-4 gap-2">
             {PLAYER_OPTS.map((n) => (
-              <button key={n} onClick={() => { setPlayers(n); sound.playButton(); }} className={`btn-3d ${players === n ? "btn-gold" : "btn-ghost"} py-2.5 text-sm`}>{n} Players</button>
+              <button key={n} onClick={() => { setPlayers(n); sound.playButton(); }} className={`btn-3d ${players === n ? "btn-gold" : "btn-ghost"} py-2.5 text-sm touch-target`}>{n} Players</button>
             ))}
           </div>
         </Section>
 
         {/* Mode */}
         <Section label="GAME MODE">
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {MODE_OPTS.map((m, i) => (
-              <button key={m} onClick={() => { setModeIdx(i); sound.playButton(); }} className={`btn-3d ${modeIdx === i ? "btn-gold" : "btn-ghost"} py-2.5 text-xs`}>{m}</button>
+              <button key={m} onClick={() => { setModeIdx(i); sound.playButton(); }} className={`btn-3d ${modeIdx === i ? "btn-gold" : "btn-ghost"} py-2.5 text-xs touch-target`}>{m}</button>
             ))}
           </div>
         </Section>
@@ -58,8 +58,8 @@ export default function CreateRoom() {
         {/* Privacy */}
         <Section label="ROOM PRIVACY">
           <div className="grid grid-cols-2 gap-2">
-            <button onClick={() => setIsPrivate(false)} className={`btn-3d ${!isPrivate ? "btn-green" : "btn-ghost"} py-2.5 text-sm flex items-center justify-center gap-2`}><Globe className="w-4 h-4" /> Public Room</button>
-            <button onClick={() => setIsPrivate(true)} className={`btn-3d ${isPrivate ? "btn-purple" : "btn-ghost"} py-2.5 text-sm flex items-center justify-center gap-2`}><Lock className="w-4 h-4" /> Private Room</button>
+            <button onClick={() => setIsPrivate(false)} className={`btn-3d ${!isPrivate ? "btn-green" : "btn-ghost"} py-2.5 text-sm flex items-center justify-center gap-2 touch-target`}><Globe className="w-4 h-4" /> Public Room</button>
+            <button onClick={() => setIsPrivate(true)} className={`btn-3d ${isPrivate ? "btn-purple" : "btn-ghost"} py-2.5 text-sm flex items-center justify-center gap-2 touch-target`}><Lock className="w-4 h-4" /> Private Room</button>
           </div>
         </Section>
 
@@ -69,7 +69,7 @@ export default function CreateRoom() {
           <ToggleRow label="Show Cards to Opponent" on={showCards} onToggle={() => { setShowCards((v) => !v); sound.playButton(); }} />
         </Section>
 
-        <button onClick={handleCreate} disabled={!connected} className="btn-3d btn-gold w-full py-3.5 flex items-center justify-center gap-2 text-base">
+        <button onClick={handleCreate} disabled={!connected} className="btn-3d btn-gold w-full py-3.5 flex items-center justify-center gap-2 text-base touch-target">
           <Users className="w-5 h-5" /> {connected ? "CREATE ROOM" : "Connecting…"}
         </button>
         {!connected && <p className="text-center text-[11px] text-gray-500">Multiplayer server is offline — try Solo from the home screen.</p>}
