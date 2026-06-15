@@ -354,7 +354,7 @@ export default function Game() {
             <div className="absolute w-[80vmin] h-[80vmin] rounded-full" style={{ background: "radial-gradient(circle, rgba(224,30,30,0.55) 0%, transparent 60%)" }} />
             {/* burst rays */}
             {Array.from({ length: 12 }).map((_, i) => (
-              <motion.span key={i} className="absolute origin-bottom" style={{ width: 4, height: "30vmin", background: "linear-gradient(to top, transparent, rgba(255,209,92,0.7))", rotate: `${i * 30}deg` }
+              <motion.span key={i} className="absolute origin-bottom" style={{ width: 4, height: "30vmin", background: "linear-gradient(to top, transparent, rgba(255,209,92,0.7))", rotate: `${i * 30}deg` }}
                 initial={{ scaleY: 0, opacity: 0 }} animate={{ scaleY: [0, 1, 0.8], opacity: [0, 1, 0] }} transition={{ duration: 1.2, delay: 0.05 }} />
             ))}
             <motion.div initial={{ scale: 0, rotate: -18 }} animate={{ scale: [0, 1.25, 1], rotate: [-18, 6, 0] }} transition={{ duration: 0.6, ease: "easeOut" }} className="relative text-center">
