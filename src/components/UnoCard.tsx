@@ -14,11 +14,11 @@ interface UnoCardProps {
 
 // Responsive pixel widths that scale with viewport via CSS variables
 const sizeMap = {
-  xs: { cw: "var(--card-sm)", aspect: "aspect-[2/3]" },
-  sm: { cw: "var(--card-sm)", aspect: "aspect-[2/3]" },
-  md: { cw: "var(--card-md)", aspect: "aspect-[2/3]" },
-  lg: { cw: "var(--card-lg)", aspect: "aspect-[2/3]" },
-  xl: { cw: "var(--card-xl)", aspect: "aspect-[2/3]" },
+  xs: { cw: "var(--card-sm)" },
+  sm: { cw: "var(--card-sm)" },
+  md: { cw: "var(--card-md)" },
+  lg: { cw: "var(--card-lg)" },
+  xl: { cw: "var(--card-xl)" },
 };
 
 function centerGlyph(card: Card): string {
@@ -46,7 +46,7 @@ export function UnoCard({ card, size = "md", playable = false, faceDown = false,
     return (
       <motion.div
         whileHover={onClick ? { y: -5, scale: 1.05 } : {}}
-        className={`uno-shell ${s.aspect} ${onClick ? "cursor-pointer" : ""} ${className}`}
+        className={`uno-shell ${onClick ? "cursor-pointer" : ""} ${className}`}
         style={cwStyle}
         onClick={onClick}
       >
@@ -71,7 +71,7 @@ export function UnoCard({ card, size = "md", playable = false, faceDown = false,
       whileTap={onClick ? { scale: 0.95, rotateX: 0, rotateY: 0 } : {}}
       transition={{ type: "spring", stiffness: 320, damping: 22 }}
       style={{ ...cwStyle, transformPerspective: 800 }}
-      className={`uno-shell ${s.aspect} ${onClick ? "cursor-pointer" : ""} ${active ? "card-active-glow" : playable ? "card-playable-glow" : ""} ${className}`}
+      className={`uno-shell ${onClick ? "cursor-pointer" : ""} ${active ? "card-active-glow" : playable ? "card-playable-glow" : ""} ${className}`}
       onClick={onClick}
     >
       <div className={`uno-inner suit-${suit}`}>

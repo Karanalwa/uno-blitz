@@ -56,7 +56,7 @@ export default function Home() {
   const navTo = (to: string, disabled?: boolean) => { if (disabled || !to) return; sound.playButton(); navigate(to); };
 
   return (
-    <div className="relative min-h-[100dvh] w-full overflow-hidden text-white"
+    <div className="relative min-h-[100dvh] w-full flex flex-col overflow-x-hidden text-white"
       style={{ background: "radial-gradient(ellipse 80% 60% at 50% 32%, #ff2d22 0%, #c01008 30%, #6e0604 56%, #2a0100 82%, #120000 100%)" }}>
 
       {/* vignette */}

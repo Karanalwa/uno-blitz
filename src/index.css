@@ -218,6 +218,8 @@
 /* ---------- UNO card (spec-driven, scales via --cw card width) ---------- */
 .uno-shell {
   --cw: 80px;
+  width: var(--cw);
+  aspect-ratio: 2 / 3;
   position: relative;
   border-radius: calc(var(--cw) * 0.1);
   border: calc(var(--cw) * 0.05) solid #fff;

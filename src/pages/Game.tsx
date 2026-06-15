@@ -182,8 +182,8 @@ export default function Game() {
   const isVerySmall = isMobile && oppCount > 3;
   const avatarSize = isVerySmall ? 40 : 52;
   const ringSize = isVerySmall ? 46 : 58;
-  const cardSize = isMobile ? (isVerySmall ? "xs" : "sm") : "lg";
-  const handCardSize = isMobile ? "xs" : "sm";
+  const cardSize = isMobile ? "md" : "lg";
+  const handCardSize = isMobile ? "sm" : "sm";
   const overlap = isMobile ? Math.min(store.myHand.length * 2.5, 18) : Math.min(store.myHand.length * 3.5, 26);
   const handPad = isMobile ? Math.min(store.myHand.length * 4, 28) : Math.min(store.myHand.length * 7, 52);
 
@@ -246,8 +246,8 @@ export default function Game() {
           {/* Draw pile */}
           <motion.button whileHover={{ y: -4 }} whileTap={{ scale: 0.96 }} onClick={handleDraw} disabled={!store.isMyTurn} className="relative flex flex-col items-center">
             <div className="relative">
-              <CardBack className="w-12 h-18 sm:w-16 sm:h-24 md:w-20 md:h-28 absolute rotate-6 opacity-70" />
-              <CardBack className="w-12 h-18 sm:w-16 sm:h-24 md:w-20 md:h-28 relative" />
+              <CardBack className="w-12 h-16 sm:w-16 sm:h-24 md:w-20 md:h-28 absolute rotate-6 opacity-70" />
+              <CardBack className="w-12 h-16 sm:w-16 sm:h-24 md:w-20 md:h-28 relative" />
               {store.isMyTurn && <motion.div animate={{ opacity: [0.3, 0.85, 0.3] }} transition={{ duration: 1.4, repeat: Infinity }} className="absolute -inset-1.5 rounded-2xl border-2 border-dashed border-gold/70" />}
             </div>
             <span className="mt-1.5 text-[9px] sm:text-[10px] font-bold tracking-wider text-gold bg-black/40 px-2 py-0.5 rounded-full">DRAW</span>
