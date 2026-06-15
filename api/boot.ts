@@ -6,10 +6,10 @@ import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import fs from "fs";
 import path from "path";
 import { appRouter } from "./router";
-import { createContext } from "./context";
-import { createOAuthCallbackHandler } from "./kimi/auth";
+import { createContext } from "../src/server/context";
+import { createOAuthCallbackHandler } from "../src/server/kimi/auth";
 import { Paths } from "@contracts/constants";
-import { initWebSocketServer } from "./game/ws-server";
+import { initWebSocketServer } from "../src/server/game/ws-server";
 
 const app = new Hono<{ Bindings: HttpBindings }>();
 

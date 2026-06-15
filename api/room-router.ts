@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { createRouter, publicQuery } from "./middleware";
-import { createRoom, joinRoom, getRoom, toggleReady, leaveRoom } from "./game/room-manager";
+import { createRouter, publicQuery } from "../src/server/middleware";
+import { createRoom, joinRoom, getRoom, toggleReady, leaveRoom } from "../src/server/game/room-manager";
 
 export const roomRouter = createRouter({
   create: publicQuery
